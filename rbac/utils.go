@@ -19,15 +19,13 @@ func functionCode(rule string) string {
 			return false;
 		}
 		// FIXME be carful of comparing null values
-		function rule(user, ressource) { 
+		function rule(user, ressource, r) { 
 			// console.log("(user):", JSON.stringify(user));
-			// console.log("(user):", JSON.stringify(ressource));
-			// console.log("(user.id):", user.id);
-			// console.log("(ressource.owner):", ressource.owner);
-			// console.log("(rule): %s   ==> (result):", %s);
+			// console.log("(ressource):", JSON.stringify(ressource));
+			console.log("(rule):", r);
 			return %s;
 		}
-	`, rule, rule, rule)
+	`, rule)
 }
 func runRule(user Map, ressource Map, permission Permission) bool {
 	if permission.Rule == nil {
@@ -52,7 +50,7 @@ func runRule(user Map, ressource Map, permission Permission) bool {
 	}
 
 	// Call the function with arguments
-	value, err := vm.Call("rule", nil, user, ressource)
+	value, err := vm.Call("rule", nil, user, ressource, rule)
 	if err != nil {
 		fmt.Println("Error calling function:", err)
 		return false

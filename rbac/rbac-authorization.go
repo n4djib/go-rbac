@@ -24,7 +24,7 @@ func (rbac RBACAuthorization) getNextInChain(user Map, ressource Map, permission
 		return []Permission{}, []Role{}
 	}
 
-	fmt.Println("+nextInChain:", child)
+	// fmt.Println("+nextInChain:", child)
 	
 	permissions = append(permissions, child)
 	roles := rbac.GetPermissionRoles(child)
@@ -49,7 +49,6 @@ func (rbac RBACAuthorization) getNextInChain(user Map, ressource Map, permission
 	return permissions, roles
 }
 
-// can we set permission as enum type
 func (rbac RBACAuthorization) IsAllowed(user Map, resource Map, permission string) (bool, error) {
 	// check the permission exist
 	var firstPermission Permission
@@ -81,7 +80,7 @@ func (rbac RBACAuthorization) IsAllowed(user Map, resource Map, permission strin
 		fmt.Println("r:" , r)
 	}
 
-	// final return // TODO (not done)
+	// final return
 	allowed := checkUserHasRole(userRoles, roles)
 
 	return allowed, nil

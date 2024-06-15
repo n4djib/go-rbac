@@ -20,6 +20,7 @@ func main() {
 
 	// TODO set embeded functions in js otto (insert a new function)
 	// TODO set inner code in rule (insert code in rule function)
+	// TODO plug in the eval engine
 
 	// TODO should i create them by function ???
 	user := rbac.Map{
@@ -31,7 +32,7 @@ func main() {
 	}
 	ressource := rbac.Map{"id": 5, "title": "tutorial", "owner": 5, "list": []int{1, 2, 3, 4, 5, 6}}
 
-	allowed, err := rbacAuth.IsAllowed(user, ressource, "edit_user")
+	allowed, err := rbacAuth.IsAllowed(user, ressource, "edit_own_user")
 	if err != nil {
 		log.Fatal("++++ error: ", err.Error())
 	}

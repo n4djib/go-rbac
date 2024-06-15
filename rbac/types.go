@@ -30,5 +30,4 @@ type UserRole struct {
 	RoleID int64  `db:"role_id" json:"role_id"`
 }
 
-// TODO remove this (confusing)
 type Map = map[string]any
