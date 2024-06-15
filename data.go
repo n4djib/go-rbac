@@ -15,12 +15,12 @@ var roles = []rbac.Role{
 var permissions = []rbac.Permission{
 	{ID: 1, Permission: "create_post", Rule: ""},
 	{ID: 2, Permission: "edit_post", Rule: ""},
-	{ID: 3, Permission: "edit_own_post", Rule: "principal.id === ressource.attr.owner"},
+	{ID: 3, Permission: "edit_own_post", Rule: "user.id === ressource.owner"},
 	{ID: 4, Permission: "delete_post", Rule: ""},
 	{ID: 5, Permission: "delete_own_post", Rule: ""},
 	{ID: 6, Permission: "edit_user", Rule: ""},
-	{ID: 7, Permission: "edit_own_user", Rule: "principal.id === ressource.id"},
-	{ID: 8, Permission: "test", Rule: "principal.id === ressource.attr.owner"},
+	{ID: 7, Permission: "edit_own_user", Rule: "user.id === ressource.id"},
+	{ID: 8, Permission: "test", Rule: "user.id === ressource.owner"},
 	{ID: 9, Permission: "test2", Rule: ""},
 }
 
@@ -51,9 +51,3 @@ var permissionRoles = []rbac.PermissionRole{
 	{ID: 7, Permission: "edit_own_user", RoleID: 1},
 	{ID: 6, Permission: "edit_user", RoleID: 2},
 }
-
-// var userRoles = []rbac.UserRole{
-// 	{ID: 3, "n4djib3", RoleID: 2},
-// 	{ID: 3, "n4djib3", RoleID: 3},
-// 	{ID: 2, "nad", RoleID: 1},
-// }

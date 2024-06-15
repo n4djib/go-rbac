@@ -11,21 +11,15 @@ type RBACAuthorization struct {
 	RoleParents       []RoleParent
 	PermissionParents []PermissionParent
 	PermissionRoles   []PermissionRole
-	// UserRoles         []UserRole
 }
 
-
-func (rbac RBACAuthorization) getNextInChain(
-		principal Principal, 
-		ressource Resource, 
-		permissions []Permission, 
-		child Permission) ([]Permission, []Role){
+func (rbac RBACAuthorization) getNextInChain(user Map, ressource Map, permissions []Permission, child Permission) ([]Permission, []Role){
 	// check child not in permissions 
 	childPermissionExist := permissionExist(permissions, child)
 	if childPermissionExist {
 		return []Permission{}, []Role{}
 	}
-	result := runRule(principal, ressource, child)
+	result := runRule(user, ressource, child)
 	if !result {
 		return []Permission{}, []Role{}
 	}
@@ -36,7 +30,7 @@ func (rbac RBACAuthorization) getNextInChain(
 	roles := rbac.GetPermissionRoles(child)
 	
 	// if user has appropriate role we break
-	userRoles := principal.Roles
+	userRoles := user["roles"].([]string)
 	hasRole := checkUserHasRole(userRoles, roles)
 	if hasRole {
 		fmt.Println("\n++breacking", roles)
@@ -47,7 +41,7 @@ func (rbac RBACAuthorization) getNextInChain(
 	for _, current := range parents {
 		parentPermissionExist := permissionExist(permissions, current)
 		if !parentPermissionExist {
-			newPermission , newRoles := rbac.getNextInChain(principal, ressource, permissions, current)
+			newPermission , newRoles := rbac.getNextInChain(user, ressource, permissions, current)
 			permissions = append(permissions, newPermission...)
 			roles = append(roles, newRoles...)
 		}
@@ -56,7 +50,7 @@ func (rbac RBACAuthorization) getNextInChain(
 }
 
 // can we set permission as enum type
-func (rbac RBACAuthorization) IsAllowed(principal Principal, resource Resource, permission string) (bool, error) {
+func (rbac RBACAuthorization) IsAllowed(user Map, resource Map, permission string) (bool, error) {
 	// check the permission exist
 	var firstPermission Permission
 	for _, current := range rbac.Permissions {
@@ -66,18 +60,18 @@ func (rbac RBACAuthorization) IsAllowed(principal Principal, resource Resource, 
 		}
 	}
 	if firstPermission.ID == 0 {
-		return false, errors.New(permission + " not found")
+		return false, errors.New(permission + " permission not found.")
+	}
+
+	// check user has roles
+	userRoles, ok := user["roles"].([]string)
+	if !ok {
+		return false, errors.New("roles of type []string not found in user")
 	}
 
 	// travers the graph
 	var permissions []Permission
-	_, foundRoles := rbac.getNextInChain(principal, resource, permissions, firstPermission)
-
-	// fmt.Println("")
-	// // fmt.Println("p:" , len(foundPermissions))
-	// for _, p := range foundPermissions {
-	// 	fmt.Println("p:" , p)
-	// }
+	_, foundRoles := rbac.getNextInChain(user, resource, permissions, firstPermission)
 	
 	// get parent roles
 	roles := rbac.GetParentRolesLoop(foundRoles)
@@ -88,7 +82,6 @@ func (rbac RBACAuthorization) IsAllowed(principal Principal, resource Resource, 
 	}
 
 	// final return // TODO (not done)
-	userRoles := principal.Roles
 	allowed := checkUserHasRole(userRoles, roles)
 
 	return allowed, nil

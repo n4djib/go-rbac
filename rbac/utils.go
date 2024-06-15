@@ -19,17 +19,17 @@ func functionCode(rule string) string {
 			return false;
 		}
 		// FIXME be carful of comparing null values
-		function rule(principal, ressource) { 
-			// console.log("(principal):", JSON.stringify(principal));
-			// console.log("(ressource):", JSON.stringify(ressource));
-			// console.log("(principal.id):", principal.id);
-			// console.log("(ressource.attr.owner):", ressource.attr.owner);
+		function rule(user, ressource) { 
+			// console.log("(user):", JSON.stringify(user));
+			// console.log("(user):", JSON.stringify(ressource));
+			// console.log("(user.id):", user.id);
+			// console.log("(ressource.owner):", ressource.owner);
 			// console.log("(rule): %s   ==> (result):", %s);
 			return %s;
 		}
 	`, rule, rule, rule)
 }
-func runRule(principal Principal, ressource Resource, permission Permission) bool {
+func runRule(user Map, ressource Map, permission Permission) bool {
 	if permission.Rule == nil {
 		return true
 	}
@@ -51,21 +51,8 @@ func runRule(principal Principal, ressource Resource, permission Permission) boo
 		return false
 	}
 
-	// normalize principal and resource for javascript
-	principalMap := Attributes{
-		"id":    principal.ID,
-		"roles": principal.Roles,
-		"attr":  principal.Attr,
-	}
-	// fmt.Println("*principalMap:", principalMap)
-	ressourceMap := Attributes{
-		"id":   ressource.ID,
-		"attr": ressource.Attr,
-	}
-	// fmt.Println("*ressourceMap:", ressourceMap)
-
 	// Call the function with arguments
-	value, err := vm.Call("rule", nil, principalMap, ressourceMap)
+	value, err := vm.Call("rule", nil, user, ressource)
 	if err != nil {
 		fmt.Println("Error calling function:", err)
 		return false

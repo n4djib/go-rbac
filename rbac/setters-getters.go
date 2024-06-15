@@ -20,9 +20,6 @@ func (rbac *RBACAuthorization) SetPermissionParents(permissionParents []Permissi
 func (rbac *RBACAuthorization) SetPermissionRoles(permissionRoles []PermissionRole) {
 	rbac.PermissionRoles = permissionRoles
 }
-// func (rbac *RBACAuthorization) SetUserRoles(userRoles []UserRole) {
-// 	rbac.UserRoles = userRoles
-// }
 
 func (rbac RBACAuthorization) GetRole(id int64) Role {
 	for _, current := range rbac.Roles {
@@ -84,16 +81,6 @@ func (rbac RBACAuthorization) GetPermissionRoles(permission Permission) []Role {
 	}
 	return roles
 }
-// func (rbac RBACAuthorization) GetUserRoles(id int64) []Role {
-// 	roles := []Role{}
-// 	for _, current := range rbac.UserRoles {
-// 		if current.ID == id {
-// 			role := rbac.GetRole(current.RoleID)
-// 			roles = append(roles, role)
-// 		}
-// 	}
-// 	return roles
-// }
 
 func (rbac RBACAuthorization) GetParentRolesLoop(foundRoles []Role) []Role {
 	roles := []Role{}

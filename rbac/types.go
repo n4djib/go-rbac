@@ -30,16 +30,5 @@ type UserRole struct {
 	RoleID int64  `db:"role_id" json:"role_id"`
 }
 
-type Attributes = map[string]any
-
-type Principal struct {
-	ID    int64
-	Roles []string
-	Attr  Attributes
-}
-type Resource struct {
-	ID   int64
-	Attr Attributes
-}
-
-// type RulesResuls map[int64]bool
+// TODO remove this (confusing)
+type Map = map[string]any
