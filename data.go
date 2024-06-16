@@ -42,7 +42,7 @@ var permissionParents = []rbac.PermissionParent{
 	{ID: 8, Permission: "test", ParentID: 6},
 } 
 
-var permissionRoles = []rbac.PermissionRole{
+var permissionRoles = []rbac.RolePermission{
 	{ID: 2, Permission: "edit_post", RoleID: 2},
 	{ID: 4, Permission: "delete_post", RoleID: 2},
 	{ID: 1, Permission: "create_post", RoleID: 1},

@@ -10,26 +10,43 @@ import (
 func main() {
 	start := time.Now()
 
-	rbacAuth := new(rbac.RBACAuthorization)
+	rbacAuth := rbac.New()
 
 	rbacAuth.SetRoles(roles)
 	rbacAuth.SetPermissions(permissions)
 	rbacAuth.SetRoleParents(roleParents)
-	rbacAuth.SetPermissionParents(permissionParents) 
-	rbacAuth.SetPermissionRoles(permissionRoles)
+	rbacAuth.SetPermissionParents(permissionParents)
+	rbacAuth.SetRolePermissions(permissionRoles)
+	
+	// rbacAuth.SetRuleEvalCode(`
+	//   function listHasValue(obj, val) {
+	// 	var values = Object.values(obj);
+	// 	for(var i = 0; i < values.length; i++){
+	// 	  if(values[i] === val) {
+	// 		return true;
+	// 	  }
+	// 	}
+	// 	return false;
+	//   }
+	//   function rule(user, ressource) {
+	// 	console.log("set at main");
+	// 	return %s;
+	//   }
+	// `)
 
-	// TODO set embeded functions in js otto (insert a new function)
-	// TODO set inner code in rule (insert code in rule function)
+
 	// TODO plug in the eval engine
+	// TODO make a library
 
-	// TODO should i create them by function ???
+
 	user := rbac.Map{
+		"id": 5, "name": "nadjib", "age": 4, 
 		"roles": []string{
 			// "ADMIN", 
 			"USER", 
 		},
-		"id": 5, "name": "nadjib", "age": 4, "active": true,
 	}
+
 	ressource := rbac.Map{"id": 5, "title": "tutorial", "owner": 5, "list": []int{1, 2, 3, 4, 5, 6}}
 
 	allowed, err := rbacAuth.IsAllowed(user, ressource, "edit_own_user")

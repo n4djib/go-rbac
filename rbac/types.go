@@ -19,7 +19,7 @@ type PermissionParent struct {
 	Permission string `db:"permission" json:"permission"`
 	ParentID   int64  `db:"parent_id" json:"parent_id"`
 }
-type PermissionRole struct {
+type RolePermission struct {
 	ID         int64  `db:"id" json:"id"`
 	Permission string `db:"permission" json:"permission"`
 	RoleID     int64  `db:"role_id" json:"role_id"`
