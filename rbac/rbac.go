@@ -13,50 +13,59 @@ type RBAC interface {
 	SetPermissionParents(permissionParents []PermissionParent)
 	SetRolePermissions(permissionRoles []RolePermission)
 	SetRuleEvalCode(code string)
+	SetEvalEngine(evalEngine EvalEngine)
 	IsAllowed(user Map, resource Map, permission string) (bool, error)
 }
 
 type rbac struct {
-	Roles             []Role
-	Permissions       []Permission
-	RoleParents       []RoleParent
-	PermissionParents []PermissionParent
-	RolePermissions   []RolePermission
-	RuleEvalCode      string
+	roles             []Role
+	permissions       []Permission
+	roleParents       []RoleParent
+	permissionParents []PermissionParent
+	rolePermissions   []RolePermission
+	ruleEvalCode      string
+	evalEngine        EvalEngine
+}
+
+type EvalEngine interface {
+	RunRule(user Map, ressource Map, rule string, ruleEvalCode string) (bool, error)
 }
 
 func New() RBAC {
 	return & rbac{
-		RuleEvalCode: 
+		ruleEvalCode: 
 		`function rule(user, ressource) {
 		    return %s;
 		}`,
+		evalEngine: NewOttoEvalEngine(),
 	}
 }
 
 // setters and getters
 func (rbac *rbac) SetRoles(roles []Role) {
-	rbac.Roles = roles
+	rbac.roles = roles
 }
 func (rbac *rbac) SetPermissions(permissions []Permission) {
-	rbac.Permissions = permissions
+	rbac.permissions = permissions
 }
 func (rbac *rbac) SetRoleParents(roleParents []RoleParent) {
-	rbac.RoleParents = roleParents
+	rbac.roleParents = roleParents
 }
 func (rbac *rbac) SetPermissionParents(permissionParents []PermissionParent) {
-	rbac.PermissionParents = permissionParents
+	rbac.permissionParents = permissionParents
 }
 func (rbac *rbac) SetRolePermissions(permissionRoles []RolePermission) {
-	rbac.RolePermissions = permissionRoles
+	rbac.rolePermissions = permissionRoles
 }
-
 func (rbac *rbac) SetRuleEvalCode(code string) {
-    rbac.RuleEvalCode = code
+    rbac.ruleEvalCode = code
+}
+func (rbac *rbac) SetEvalEngine(evalEngine EvalEngine) {
+    rbac.evalEngine = evalEngine
 }
 
 func (rbac rbac) getRole(id int64) Role {
-	for _, current := range rbac.Roles {
+	for _, current := range rbac.roles {
 		if current.ID == id {
 			return current
 		}
@@ -64,7 +73,7 @@ func (rbac rbac) getRole(id int64) Role {
 	return Role{}
 }
 func (rbac rbac) getPermission(id int64) Permission {
-	for _, current := range rbac.Permissions {
+	for _, current := range rbac.permissions {
 		if current.ID == id {
 			return current
 		}
@@ -73,7 +82,7 @@ func (rbac rbac) getPermission(id int64) Permission {
 }
 func (rbac rbac) getRoleParents(id int64) []Role {
 	parents := []Role{}
-	for _, current := range rbac.RoleParents {
+	for _, current := range rbac.roleParents {
 		if current.ID == id {
 			parent := rbac.getRole(current.ParentID)
 			parents = append(parents, parent)
@@ -83,7 +92,7 @@ func (rbac rbac) getRoleParents(id int64) []Role {
 }
 func (rbac rbac) getPermissionParents(id int64) []Permission {
 	parents := []Permission{}
-	for _, current := range rbac.PermissionParents {
+	for _, current := range rbac.permissionParents {
 		if current.ID == id {
 			parent := rbac.getPermission(current.ParentID)
 			rule := strings.TrimSpace(parent.Rule.(string))
@@ -93,7 +102,7 @@ func (rbac rbac) getPermissionParents(id int64) []Permission {
 			}
 		}
 	}
-	for _, current := range rbac.PermissionParents {
+	for _, current := range rbac.permissionParents {
 		if current.ID == id {
 			parent := rbac.getPermission(current.ParentID)
 			rule := strings.TrimSpace(parent.Rule.(string))
@@ -107,7 +116,7 @@ func (rbac rbac) getPermissionParents(id int64) []Permission {
 }
 func (rbac rbac) getRolePermissions(permission Permission) []Role {
 	roles := []Role{}
-	for _, current := range rbac.RolePermissions {
+	for _, current := range rbac.rolePermissions {
 		if current.ID == permission.ID {
 			role := rbac.getRole(current.RoleID)
 			roles = append(roles, role)
@@ -115,7 +124,6 @@ func (rbac rbac) getRolePermissions(permission Permission) []Role {
 	}
 	return roles
 }
-
 func (rbac rbac) getParentRolesLoop(foundRoles []Role) []Role {
 	roles := []Role{}
 	for _, child := range foundRoles {
@@ -143,7 +151,12 @@ func (rbac rbac) getNextInChain(user Map, ressource Map, permissions []Permissio
 		return []Permission{}, []Role{}
 	}
 	permission := child
-	result := runRule(user, ressource, permission, rbac.RuleEvalCode)
+	rule := strings.TrimSpace(permission.Rule.(string))
+	result, err := rbac.evalEngine.RunRule(user, ressource, rule, rbac.ruleEvalCode)
+	if err != nil {
+		fmt.Println("+++ Error in Run Rule: ", err.Error())
+		return []Permission{}, []Role{}
+	}
 	if !result {
 		return []Permission{}, []Role{}
 	}
@@ -172,11 +185,10 @@ func (rbac rbac) getNextInChain(user Map, ressource Map, permissions []Permissio
 	}
 	return permissions, roles
 }
-
 func (rbac rbac) IsAllowed(user Map, resource Map, permission string) (bool, error) {
 	// check the permission exist
 	var firstPermission Permission
-	for _, current := range rbac.Permissions {
+	for _, current := range rbac.permissions {
 		if permission == current.Permission {
 			firstPermission = current
 			break
@@ -200,9 +212,9 @@ func (rbac rbac) IsAllowed(user Map, resource Map, permission string) (bool, err
 	roles := rbac.getParentRolesLoop(foundRoles)
 
 	// fmt.Println("")
-	for _, r := range roles {
-		fmt.Println("r:" , r)
-	}
+	// for _, r := range roles {
+	// 	fmt.Println("r:" , r)
+	// }
 
 	// final return
 	allowed := checkUserHasRole(userRoles, roles)

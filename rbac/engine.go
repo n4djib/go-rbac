@@ -1,46 +1,45 @@
 package rbac
 
 import (
+	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/robertkrimen/otto"
 )
 
-func runRule(user Map, ressource Map, permission Permission, ruleEvalCode string) bool {
-	if permission.Rule == nil {
-		return true
-	}
-	rule := strings.TrimSpace(permission.Rule.(string))
+type OttoEvalEngine struct {
+	vm *otto.Otto
+}
+
+func NewOttoEvalEngine() *OttoEvalEngine {
+	return &OttoEvalEngine{vm: otto.New()}
+}
+
+func (ottoEE *OttoEvalEngine) RunRule(user Map, ressource Map, rule string, ruleEvalCode string) (bool, error) {
 	if rule == "" {
-		return true
+		return true, nil
 	}
 
-	// generate JS script
+	// format JS script
 	evalCode := fmt.Sprintf(ruleEvalCode, rule)
-
-	// Create a new JavaScript VM
-	vm := otto.New()
-
+	
 	// Run the function code
-	_, err := vm.Run(evalCode)
+	_, err := ottoEE.vm.Run(evalCode)
 	if err != nil {
-		fmt.Println("+++ Error running Eval function code:", err)
-		return false
+		return false, errors.New("Error running Eval function code, " + err.Error())
 	}
 
 	// Call the function with arguments
-	value, err := vm.Call("rule", nil, user, ressource)
+	value, err := ottoEE.vm.Call("rule", nil, user, ressource)
 	if err != nil {
-		fmt.Println("Error calling function:", err)
-		return false
+		return false, errors.New("Error calling function, " + err.Error())
 	}
+
 	// Get the result as an integer
 	result, err := value.ToBoolean()
 	if err != nil {
-		fmt.Println("Error converting result:", err)
-		return false
+		return false, errors.New("Error converting result, " + err.Error())
 	}
 
-	return result
+	return result, nil
 }

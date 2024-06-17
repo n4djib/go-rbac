@@ -12,6 +12,8 @@ func main() {
 
 	rbacAuth := rbac.New()
 
+	// TODO should we enforce seting the attributes?
+
 	rbacAuth.SetRoles(roles)
 	rbacAuth.SetPermissions(permissions)
 	rbacAuth.SetRoleParents(roleParents)
@@ -35,7 +37,6 @@ func main() {
 	// `)
 
 
-	// TODO plug in the eval engine
 	// TODO make a library
 
 
@@ -49,13 +50,17 @@ func main() {
 
 	ressource := rbac.Map{"id": 5, "title": "tutorial", "owner": 5, "list": []int{1, 2, 3, 4, 5, 6}}
 
+	
+
+	startFinal := time.Now()
 	allowed, err := rbacAuth.IsAllowed(user, ressource, "edit_own_user")
+	fmt.Println("\n-duration isAlllowed:", time.Since(startFinal))
+	
 	if err != nil {
 		log.Fatal("++++ error: ", err.Error())
 	}
 	fmt.Println("\n-allowed:", allowed)
 
 	// execution duration
-	duration := time.Since(start)
-	fmt.Println("\n-duration:", duration)
+	fmt.Println("\n-duration:", time.Since(start))
 }
