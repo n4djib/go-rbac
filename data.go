@@ -15,39 +15,39 @@ var roles = []rbac.Role{
 var permissions = []rbac.Permission{
 	{ID: 1, Permission: "create_post", Rule: ""},
 	{ID: 2, Permission: "edit_post", Rule: ""},
-	{ID: 3, Permission: "edit_own_post", Rule: "user.id === ressource.owner"},
+	{ID: 3, Permission: "edit_own_post", Rule: "user.id === resource.owner"},
 	{ID: 4, Permission: "delete_post", Rule: ""},
 	{ID: 5, Permission: "delete_own_post", Rule: ""},
 	{ID: 6, Permission: "edit_user", Rule: ""},
-	{ID: 7, Permission: "edit_own_user", Rule: "user.id === ressource.id"},
-	{ID: 8, Permission: "test", Rule: "user.id === ressource.owner"},
+	{ID: 7, Permission: "edit_own_user", Rule: "user.id === resource.id"},
+	{ID: 8, Permission: "test", Rule: "user.id === resource.owner"},
 	{ID: 9, Permission: "test2", Rule: ""},
 }
 
 var roleParents = []rbac.RoleParent{
-	{ID: 1, Role: "USER", ParentID: 2},
-	{ID: 3, Role: "MANAGER", ParentID: 2},
-	{ID: 1, Role: "USER", ParentID: 3},
+	{RoleID: 1, ParentID: 2},
+	{RoleID: 3, ParentID: 2},
+	{RoleID: 1, ParentID: 3},
 	
-	{ID: 2, Role: "ADMIN", ParentID: 4},
-	{ID: 4, Role: "SUPER-ADMIN", ParentID: 1},
+	{RoleID: 2, ParentID: 4},
+	{RoleID: 4, ParentID: 1},
 }
 
 var permissionParents = []rbac.PermissionParent{
-	{ID: 6, Permission: "edit_user", ParentID: 7},
-	{ID: 7, Permission: "edit_own_user", ParentID: 8},
-	{ID: 6, Permission: "edit_user", ParentID: 9},
-	{ID: 9, Permission: "test2", ParentID: 8},
+	{PermissionID: 6, ParentID: 7},
+	{PermissionID: 7, ParentID: 8},
+	{PermissionID: 6, ParentID: 9},
+	{PermissionID: 9, ParentID: 8},
 	
-	{ID: 8, Permission: "test", ParentID: 6},
-} 
+	{PermissionID: 8, ParentID: 6},
+}
 
-var permissionRoles = []rbac.RolePermission{
-	{ID: 2, Permission: "edit_post", RoleID: 2},
-	{ID: 4, Permission: "delete_post", RoleID: 2},
-	{ID: 1, Permission: "create_post", RoleID: 1},
-	{ID: 3, Permission: "edit_own_post", RoleID: 1},
-	{ID: 5, Permission: "delete_own_post", RoleID: 1},
-	{ID: 7, Permission: "edit_own_user", RoleID: 1},
-	{ID: 6, Permission: "edit_user", RoleID: 2},
+var rolePermissions = []rbac.RolePermission{
+	{RoleID: 2, PermissionID: 2},
+	{RoleID: 2, PermissionID: 4},
+	{RoleID: 1, PermissionID: 1},
+	{RoleID: 1, PermissionID: 3},
+	{RoleID: 1, PermissionID: 5},
+	{RoleID: 1, PermissionID: 7},
+	{RoleID: 2, PermissionID: 6},
 }

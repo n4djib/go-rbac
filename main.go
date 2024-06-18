@@ -4,13 +4,18 @@ import (
 	"fmt"
 	"go-rbac/rbac"
 	"log"
+
 	"time"
 )
+
 
 func main() {
 	start := time.Now()
 
-	rbacAuth := rbac.New()
+	goja := NewGojaEvalEngine()
+	rbacAuth := rbac.New(goja)
+	
+	// rbacAuth := rbac.New()
 
 	// TODO should we enforce seting the attributes?
 
@@ -18,9 +23,10 @@ func main() {
 	rbacAuth.SetPermissions(permissions)
 	rbacAuth.SetRoleParents(roleParents)
 	rbacAuth.SetPermissionParents(permissionParents)
-	rbacAuth.SetRolePermissions(permissionRoles)
+	rbacAuth.SetRolePermissions(rolePermissions)
 	
-	// rbacAuth.SetRuleEvalCode(`
+	// TODO i shuold send on the code (in one param) not the rule + the code
+	rbacAuth.SetEvalCode(`
 	//   function listHasValue(obj, val) {
 	// 	var values = Object.values(obj);
 	// 	for(var i = 0; i < values.length; i++){
@@ -30,11 +36,13 @@ func main() {
 	// 	}
 	// 	return false;
 	//   }
-	//   function rule(user, ressource) {
-	// 	console.log("set at main");
-	// 	return %s;
-	//   }
-	// `)
+	  function rule(user, resource) {
+		return %s;
+	  }
+	`)
+
+	// TODO i want to set it in the constractor of rbac (use ...args)
+	// rbacAuth.SetEvalEngine(NewGojaEvalEngine())
 
 
 	// TODO make a library
@@ -48,18 +56,15 @@ func main() {
 		},
 	}
 
-	ressource := rbac.Map{"id": 5, "title": "tutorial", "owner": 5, "list": []int{1, 2, 3, 4, 5, 6}}
-
-	
+	resource := rbac.Map{"id": 5, "title": "tutorial", "owner": 5, "list": []int{1, 2, 3, 4, 5, 6}}
 
 	startFinal := time.Now()
-	allowed, err := rbacAuth.IsAllowed(user, ressource, "edit_own_user")
-	fmt.Println("\n-duration isAlllowed:", time.Since(startFinal))
-	
+	allowed, err := rbacAuth.IsAllowed(user, resource, "edit_user")
+	fmt.Println("\n - duration IsAllowed:", time.Since(startFinal))
 	if err != nil {
 		log.Fatal("++++ error: ", err.Error())
 	}
-	fmt.Println("\n-allowed:", allowed)
+	fmt.Println("\n - allowed:", allowed)
 
 	// execution duration
 	fmt.Println("\n-duration:", time.Since(start))
