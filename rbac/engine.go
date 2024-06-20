@@ -9,19 +9,30 @@ import (
 
 type OttoEvalEngine struct {
 	vm *otto.Otto
+	evalCode string
 }
 
 func NewOttoEvalEngine() *OttoEvalEngine {
-	return &OttoEvalEngine{vm: otto.New()}
+	return &OttoEvalEngine{
+		vm: otto.New(),
+		evalCode: 
+		`function rule(user, resource) {
+		    return %s;
+		}`,
+	}
 }
 
-func (ottoEE *OttoEvalEngine) RunRule(user Map, resource Map, rule string, evalCode string) (bool, error) {
+func (ottoEE *OttoEvalEngine) SetEvalCode (evalCode string) {
+	ottoEE.evalCode = evalCode
+} 
+
+func (ottoEE *OttoEvalEngine) RunRule(user Map, resource Map, rule string) (bool, error) {
 	if rule == "" {
 		return true, nil
 	}
 
 	// format JS script
-	script := fmt.Sprintf(evalCode, rule)
+	script := fmt.Sprintf(ottoEE.evalCode, rule)
 	
 	// Run the function code
 	_, err := ottoEE.vm.Run(script)

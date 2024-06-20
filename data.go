@@ -50,4 +50,7 @@ var rolePermissions = []rbac.RolePermission{
 	{RoleID: 1, PermissionID: 5},
 	{RoleID: 1, PermissionID: 7},
 	{RoleID: 2, PermissionID: 6},
+	
+	// TODO remove this
+	// {RoleID: 1, PermissionID: 9},
 }

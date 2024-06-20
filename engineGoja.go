@@ -12,13 +12,24 @@ import (
 
 type GojaEvalEngine struct {
 	vm *goja.Runtime
+	evalCode string
 }
 
 func NewGojaEvalEngine() *GojaEvalEngine {
-	return &GojaEvalEngine{vm: goja.New()}
+	return &GojaEvalEngine{
+		vm: goja.New(),
+		evalCode: 
+		`function rule(user, resource) {
+		    return %s;
+		}`,
+	}
 }
 
-func (g *GojaEvalEngine) RunRule(user rbac.Map, resource rbac.Map, rule string, evalCode string) (bool, error) {
+func (g *GojaEvalEngine) SetEvalCode (evalCode string) {
+	g.evalCode = evalCode
+} 
+
+func (g *GojaEvalEngine) RunRule(user rbac.Map, resource rbac.Map, rule string) (bool, error) {
 	if rule == "" {
 		return true, nil
 	}
@@ -28,7 +39,7 @@ func (g *GojaEvalEngine) RunRule(user rbac.Map, resource rbac.Map, rule string, 
 	// console.Enable(g.vm)
 
 	// format JS script
-	script := fmt.Sprintf(evalCode, rule)
+	script := fmt.Sprintf(g.evalCode, rule)
 
 	_, err := g.vm.RunString(script)
 	if err != nil {

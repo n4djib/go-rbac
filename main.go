@@ -8,12 +8,27 @@ import (
 	"time"
 )
 
+//   function listHasValue(obj, val) {
+// 	var values = Object.values(obj);
+// 	for(var i = 0; i < values.length; i++){
+// 	  if(values[i] === val) {
+// 		return true;
+// 	  }
+// 	}
+// 	return false;
+//   }
 
 func main() {
 	start := time.Now()
 
-	goja := NewGojaEvalEngine()
-	rbacAuth := rbac.New(goja)
+	// goja := NewGojaEvalEngine()
+	// rbacAuth := rbac.New(goja)
+
+	fasterOtto, err := NewFasterOtto(permissions)
+	if err != nil {
+		log.Fatal("error creating fasterOtto, "+ err.Error())
+	}
+	rbacAuth := rbac.New(fasterOtto)
 	
 	// rbacAuth := rbac.New()
 
@@ -25,27 +40,18 @@ func main() {
 	rbacAuth.SetPermissionParents(permissionParents)
 	rbacAuth.SetRolePermissions(rolePermissions)
 	
-	// TODO i shuold send on the code (in one param) not the rule + the code
-	rbacAuth.SetEvalCode(`
-	//   function listHasValue(obj, val) {
-	// 	var values = Object.values(obj);
-	// 	for(var i = 0; i < values.length; i++){
-	// 	  if(values[i] === val) {
-	// 		return true;
-	// 	  }
-	// 	}
-	// 	return false;
-	//   }
-	  function rule(user, resource) {
-		return %s;
-	  }
-	`)
-
-	// TODO i want to set it in the constractor of rbac (use ...args)
 	// rbacAuth.SetEvalEngine(NewGojaEvalEngine())
+
+	// rbacAuth.SetEvalCode(`
+	//   function rule(user, resource) {
+	// 	return %s;
+	//   }
+	// `)
 
 
 	// TODO make a library
+	// TODO use clojures to save permissions in graph traversal
+	// TODO what if we generate diffrent functions for every rule and then just call the apropriate function
 
 
 	user := rbac.Map{
@@ -58,14 +64,21 @@ func main() {
 
 	resource := rbac.Map{"id": 5, "title": "tutorial", "owner": 5, "list": []int{1, 2, 3, 4, 5, 6}}
 
-	startFinal := time.Now()
-	allowed, err := rbacAuth.IsAllowed(user, resource, "edit_user")
-	fmt.Println("\n - duration IsAllowed:", time.Since(startFinal))
-	if err != nil {
-		log.Fatal("++++ error: ", err.Error())
+
+	iterations := 100
+	duration := float64(0.0)
+	for i := 0; i < iterations; i++  {
+		startFinal := time.Now()
+		_, err := rbacAuth.IsAllowed(user, resource, "edit_user")
+		if err != nil {
+			log.Fatal("++++ error: ", err.Error())
+		}
+		since := time.Since(startFinal)
+		// fmt.Println("- allowed:", allowed, "- duration:", since)
+		duration = duration + float64(since)
 	}
-	fmt.Println("\n - allowed:", allowed)
+	fmt.Println("\n- Average:", time.Duration(duration / float64(iterations)))
 
 	// execution duration
-	fmt.Println("\n-duration:", time.Since(start))
+	fmt.Println("- Duration:", time.Since(start))
 }
