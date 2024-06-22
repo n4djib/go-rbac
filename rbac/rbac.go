@@ -12,8 +12,9 @@ type RBAC interface {
 	SetRoleParents(roleParents []RoleParent)
 	SetPermissionParents(permissionParents []PermissionParent)
 	SetRolePermissions(permissionRoles []RolePermission)
-	SetEvalCode(code string)
-	SetEvalEngine(evalEngine EvalEngine)
+	// SetEvalFunctions(code string)
+	// SetEvalEngine(evalEngine EvalEngine)
+	GetEvalEngine() EvalEngine
 	IsAllowed(user Map, resource Map, permission string) (bool, error)
 }
 
@@ -31,14 +32,14 @@ type rbac struct {
 
 type EvalEngine interface {
 	RunRule(user Map, resource Map, rule string) (bool, error)
-	SetEvalCode(evalCode string)
+	SetOtherCode(code string)
+	SetRuleFunction(code string)
 }
 
 func New(engine ...EvalEngine) RBAC {
 	if len(engine) == 1 {
 		return & rbac{ evalEngine: engine[0] }
 	}
-	
 	return & rbac{ evalEngine: NewOttoEvalEngine() }
 }
 
@@ -61,12 +62,9 @@ func (rbac *rbac) SetRolePermissions(permissionRoles []RolePermission) {
 	rbac.rolePermissions = permissionRoles
 	rbac.rolePermissionsSet = true
 }
-func (rbac *rbac) SetEvalCode(code string) {
-    // rbac.evalCode = code
-	rbac.evalEngine.SetEvalCode(code)
-}
-func (rbac *rbac) SetEvalEngine(evalEngine EvalEngine) {
-    rbac.evalEngine = evalEngine
+
+func (rbac rbac) GetEvalEngine() EvalEngine {
+	return rbac.evalEngine
 }
 
 func (rbac rbac) getRole(id int64) Role {
@@ -156,7 +154,8 @@ func (rbac rbac) getNextInChain(user Map, resource Map, permissions []Permission
 		return []Permission{}, []Role{}, false
 	}
 
-	result, err := rbac.evalEngine.RunRule(user, resource, strings.TrimSpace(child.Rule))
+	rule := strings.TrimSpace(child.Rule)
+	result, err := rbac.evalEngine.RunRule(user, resource, rule)
 	if err != nil {
 		fmt.Println("+++ Error in Run Rule: ", err.Error())
 		return []Permission{}, []Role{}, false
@@ -171,7 +170,6 @@ func (rbac rbac) getNextInChain(user Map, resource Map, permissions []Permission
 	roles := rbac.getPermissionRoles(child.ID)
 	
 	// if user has appropriate role we break
-	// FIXME breaking does not stop other branches
 	userRoles := user["roles"].([]string)
 	hasRole := checkUserHasRole(userRoles, roles)
 	if hasRole {

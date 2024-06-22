@@ -1,5 +1,10 @@
 package rbac
 
+import (
+	"fmt"
+	"strconv"
+)
+
 func roleExist(roles []Role, role Role) bool {
 	for _, current := range roles {
 		if current.ID == role.ID {
@@ -27,4 +32,25 @@ func checkUserHasRole(userRoles []string, roles []Role) bool {
 		}
 	}
 	return false
+}
+
+func generateScript(permissions []Permission, ruleFunction string) (string, map[string]string) {
+	rulesMap := map[string]string{}
+
+	i := 0
+	for _, p := range permissions {
+		_, ok := rulesMap[p.Rule]
+		if !ok && p.Rule != "" {
+			rulesMap[p.Rule] = strconv.Itoa(i)
+			i++
+		}
+	}
+
+	script := ``
+	for key, value := range rulesMap {
+		script = script + `
+	  		` + fmt.Sprintf(ruleFunction, value, key)
+	}
+
+	return script, rulesMap
 }

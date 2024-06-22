@@ -9,39 +9,47 @@ import (
 
 type OttoEvalEngine struct {
 	vm *otto.Otto
-	evalCode string
+	otherCode    string
+	ruleFunction string
 }
+
+const defaultRuleFunction = 
+`function rule(user, resource) {
+	return %s;
+}`
 
 func NewOttoEvalEngine() *OttoEvalEngine {
 	return &OttoEvalEngine{
 		vm: otto.New(),
-		evalCode: 
-		`function rule(user, resource) {
-		    return %s;
-		}`,
+		ruleFunction: defaultRuleFunction,
 	}
 }
 
-func (ottoEE *OttoEvalEngine) SetEvalCode (evalCode string) {
-	ottoEE.evalCode = evalCode
-} 
+func (ee *OttoEvalEngine) SetOtherCode (code string) {
+	ee.otherCode = code
+	// _, err := 
+	ee.vm.Run(code)
+}
+func (ee *OttoEvalEngine) SetRuleFunction (code string) {
+	ee.ruleFunction = code
+}
 
-func (ottoEE *OttoEvalEngine) RunRule(user Map, resource Map, rule string) (bool, error) {
+func (ee *OttoEvalEngine) RunRule(user Map, resource Map, rule string) (bool, error) {
 	if rule == "" {
 		return true, nil
 	}
 
 	// format JS script
-	script := fmt.Sprintf(ottoEE.evalCode, rule)
+	script := fmt.Sprintf(ee.ruleFunction, rule)
 	
 	// Run the function code
-	_, err := ottoEE.vm.Run(script)
+	_, err := ee.vm.Run(ee.otherCode + ` ` + script)
 	if err != nil {
 		return false, errors.New("Error running Eval function code, " + err.Error())
 	}
 
 	// Call the function with arguments
-	value, err := ottoEE.vm.Call("rule", nil, user, resource)
+	value, err := ee.vm.Call("rule", nil, user, resource)
 	if err != nil {
 		return false, errors.New("Error calling function, " + err.Error())
 	}

@@ -19,6 +19,7 @@ var permissions = []rbac.Permission{
 	{ID: 4, Permission: "delete_post", Rule: ""},
 	{ID: 5, Permission: "delete_own_post", Rule: ""},
 	{ID: 6, Permission: "edit_user", Rule: ""},
+	// {ID: 7, Permission: "edit_own_user", Rule: "user.id === resource.id && listHasValue(resource.list, 2)"},
 	{ID: 7, Permission: "edit_own_user", Rule: "user.id === resource.id"},
 	{ID: 8, Permission: "test", Rule: "user.id === resource.owner"},
 	{ID: 9, Permission: "test2", Rule: ""},

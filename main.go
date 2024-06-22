@@ -8,50 +8,51 @@ import (
 	"time"
 )
 
-//   function listHasValue(obj, val) {
-// 	var values = Object.values(obj);
-// 	for(var i = 0; i < values.length; i++){
-// 	  if(values[i] === val) {
-// 		return true;
-// 	  }
-// 	}
-// 	return false;
-//   }
+var otherCode = `
+function listHasValue(obj, val) {
+	var values = Object.values(obj);
+	for(var i = 0; i < values.length; i++){
+		if(values[i] === val) {
+			return true;
+		}
+	}
+	return false;
+}
+`
 
 func main() {
 	start := time.Now()
 
-	// goja := NewGojaEvalEngine()
-	// rbacAuth := rbac.New(goja)
+	goja, _ := rbac.NewGojaEvalEngine(permissions)
+	rbacAuth := rbac.New(goja)
 
-	fasterOtto, err := NewFasterOtto(permissions)
-	if err != nil {
-		log.Fatal("error creating fasterOtto, "+ err.Error())
-	}
-	rbacAuth := rbac.New(fasterOtto)
+	// fasterOtto, _ := rbac.NewFasterOtto(permissions)
+	// // fasterOtto.SetOtherCode(otherCode)
+	// rbacAuth := rbac.New(fasterOtto)
+
+	// evalEngine := rbacAuth.GetEvalEngine()
+	// evalEngine.SetOtherCode(otherCode)
+
+	// evalEngine.SetRuleFunction(`
+	// function rule%s(user, resource) {
+	// 	return %s;
+	// }`)
 	
 	// rbacAuth := rbac.New()
 
-	// TODO should we enforce seting the attributes?
 
 	rbacAuth.SetRoles(roles)
 	rbacAuth.SetPermissions(permissions)
 	rbacAuth.SetRoleParents(roleParents)
 	rbacAuth.SetPermissionParents(permissionParents)
 	rbacAuth.SetRolePermissions(rolePermissions)
-	
-	// rbacAuth.SetEvalEngine(NewGojaEvalEngine())
-
-	// rbacAuth.SetEvalCode(`
-	//   function rule(user, resource) {
-	// 	return %s;
-	//   }
-	// `)
 
 
 	// TODO make a library
 	// TODO use clojures to save permissions in graph traversal
-	// TODO what if we generate diffrent functions for every rule and then just call the apropriate function
+	// in this case we don't pass permissions and roles (they are global)
+	// maybe create the slices with the length of the permisssions and roles
+	// TODO need to improve error handling
 
 
 	user := rbac.Map{
@@ -78,6 +79,7 @@ func main() {
 		duration = duration + float64(since)
 	}
 	fmt.Println("\n- Average:", time.Duration(duration / float64(iterations)))
+
 
 	// execution duration
 	fmt.Println("- Duration:", time.Since(start))
