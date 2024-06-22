@@ -70,12 +70,12 @@ func main() {
 	duration := float64(0.0)
 	for i := 0; i < iterations; i++  {
 		startFinal := time.Now()
-		_, err := rbacAuth.IsAllowed(user, resource, "edit_user")
+		allowed, err := rbacAuth.IsAllowed(user, resource, "edit_user")
 		if err != nil {
 			log.Fatal("++++ error: ", err.Error())
 		}
 		since := time.Since(startFinal)
-		// fmt.Println("- allowed:", allowed, "- duration:", since)
+		fmt.Println("- allowed:", allowed, "- duration:", since)
 		duration = duration + float64(since)
 	}
 	fmt.Println("\n- Average:", time.Duration(duration / float64(iterations)))

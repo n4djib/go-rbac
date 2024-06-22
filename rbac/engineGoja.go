@@ -34,6 +34,10 @@ func NewGojaEvalEngine(permissions []Permission) (*GojaEvalEngine, error) {
 		return nil, errors.New("Error running Eval function code, " + err.Error())
 	}
 
+	// registry := require.NewRegistry()
+	// registry.Enable(vm)
+	// console.Enable(vm)
+
 	evalEngine := &GojaEvalEngine{
 		vm: vm,
 		rulesMap: rulesMap,
