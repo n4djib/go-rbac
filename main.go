@@ -8,9 +8,9 @@ import (
 	"time"
 )
 
-var otherCode = `
-function listHasValue(obj, val) {
-	var values = Object.values(obj);
+const otherCode = `
+function listHasValue(lst, val) {
+	var values = Object.values(lst);
 	for(var i = 0; i < values.length; i++){
 		if(values[i] === val) {
 			return true;
@@ -27,33 +27,21 @@ func main() {
 	rbacAuth := rbac.New(goja)
 
 	// fasterOtto, _ := rbac.NewFasterOtto(permissions)
-	// // fasterOtto.SetOtherCode(otherCode)
 	// rbacAuth := rbac.New(fasterOtto)
+
+	// rbacAuth := rbac.New()
 
 	// evalEngine := rbacAuth.GetEvalEngine()
 	// evalEngine.SetOtherCode(otherCode)
-
-	// evalEngine.SetRuleFunction(`
-	// function rule%s(user, resource) {
-	// 	return %s;
-	// }`)
+	// evalEngine.SetRuleFunction(`function rule%s(user, resource) { return %s; }`)
+	// evalEngine.SetRuleFunction(` %s; `)
 	
-	// rbacAuth := rbac.New()
-
 
 	rbacAuth.SetRoles(roles)
 	rbacAuth.SetPermissions(permissions)
 	rbacAuth.SetRoleParents(roleParents)
 	rbacAuth.SetPermissionParents(permissionParents)
 	rbacAuth.SetRolePermissions(rolePermissions)
-
-
-	// TODO make a library
-	// TODO use clojures to save permissions in graph traversal
-	// in this case we don't pass permissions and roles (they are global)
-	// maybe create the slices with the length of the permisssions and roles
-	// TODO need to improve error handling
-
 
 	user := rbac.Map{
 		"id": 5, "name": "nadjib", "age": 4, 
@@ -63,10 +51,13 @@ func main() {
 		},
 	}
 
-	resource := rbac.Map{"id": 5, "title": "tutorial", "owner": 5, "list": []int{1, 2, 3, 4, 5, 6}}
+	resource := rbac.Map{
+		"id": 5, "title": "tutorial", "owner": 5, 
+		"list": []int{1, 2, 3, 4, 5, 6},
+	}
 
 
-	iterations := 100
+	iterations := 1
 	duration := float64(0.0)
 	for i := 0; i < iterations; i++  {
 		startFinal := time.Now()
@@ -83,4 +74,14 @@ func main() {
 
 	// execution duration
 	fmt.Println("- Duration:", time.Since(start))
+	
+
+	// TODO make a library
+	// TODO use closures to save permissions in graph traversal
+	// in this case we don't pass permissions and roles (they are global)
+	// maybe create the slices with the length of the permisssions and roles
+	// TODO need to improve error handling
+	// TODO what if we change the data into graph at init
+	//     would that be faster?
+	// TODO set the data as maps not slices
 }

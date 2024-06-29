@@ -27,11 +27,11 @@ var permissions = []rbac.Permission{
 
 var roleParents = []rbac.RoleParent{
 	{RoleID: 1, ParentID: 2},
-	{RoleID: 3, ParentID: 2},
-	{RoleID: 1, ParentID: 3},
+	// {RoleID: 3, ParentID: 2},
+	// {RoleID: 1, ParentID: 3},
 	
 	{RoleID: 2, ParentID: 4},
-	{RoleID: 4, ParentID: 1},
+	// {RoleID: 4, ParentID: 1},
 }
 
 var permissionParents = []rbac.PermissionParent{
@@ -41,6 +41,7 @@ var permissionParents = []rbac.PermissionParent{
 	{PermissionID: 9, ParentID: 8},
 	
 	{PermissionID: 8, ParentID: 6},
+	{PermissionID: 6, ParentID: 6},
 }
 
 var rolePermissions = []rbac.RolePermission{

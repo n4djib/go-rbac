@@ -23,3 +23,6 @@ type RolePermission struct {
 }
 
 type Map = map[string]any
+
+type PermissionsMap = map[int64]Permission
+type RolesMap = map[int64]Role
