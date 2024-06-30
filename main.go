@@ -23,18 +23,18 @@ function listHasValue(lst, val) {
 func main() {
 	start := time.Now()
 
-	goja, _ := rbac.NewGojaEvalEngine(permissions)
-	rbacAuth := rbac.New(goja)
+	// goja, _ := rbac.NewGojaEvalEngine(permissions)
+	// rbacAuth := rbac.New(goja)
 
 	// fasterOtto, _ := rbac.NewFasterOtto(permissions)
 	// rbacAuth := rbac.New(fasterOtto)
 
-	// rbacAuth := rbac.New()
+	rbacAuth := rbac.New()
 
 	// evalEngine := rbacAuth.GetEvalEngine()
 	// evalEngine.SetOtherCode(otherCode)
-	// evalEngine.SetRuleFunction(`function rule%s(user, resource) { return %s; }`)
-	// evalEngine.SetRuleFunction(` %s; `)
+	// evalEngine.SetRuleCode(`function rule%s(user, resource) { return %s; }`)
+	// evalEngine.SetRuleCode(` %s; `)
 	
 
 	rbacAuth.SetRoles(roles)

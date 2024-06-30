@@ -52,7 +52,7 @@ func (ee *GojaEvalEngine) SetOtherCode (code string) {
 	ee.vm.RunString(code)
 }
 
-func (ee *GojaEvalEngine) SetRuleFunction (code string) {
+func (ee *GojaEvalEngine) SetRuleCode (code string) {
 	ee.ruleFunction = code
 	script, rulesMap := generateScript(ee.permissions, code)
 	ee.rulesMap = rulesMap

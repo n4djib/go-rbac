@@ -30,7 +30,7 @@ func (ee *OttoEvalEngine) SetOtherCode (code string) {
 	// _, err := 
 	ee.vm.Run(code)
 }
-func (ee *OttoEvalEngine) SetRuleFunction (code string) {
+func (ee *OttoEvalEngine) SetRuleCode (code string) {
 	ee.ruleFunction = code
 }
 

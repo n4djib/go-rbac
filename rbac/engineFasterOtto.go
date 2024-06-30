@@ -44,7 +44,7 @@ func (ee *FasterOttoEvalEngine) SetOtherCode (code string) {
 	ee.vm.Run(code)
 }
 
-func (ee *FasterOttoEvalEngine) SetRuleFunction (code string) {
+func (ee *FasterOttoEvalEngine) SetRuleCode (code string) {
 	ee.ruleFunction = code
 	script, rulesMap := generateScript(ee.permissions, code)
 	ee.rulesMap = rulesMap

@@ -31,7 +31,7 @@ type rbac struct {
 type EvalEngine interface {
 	RunRule(user Map, resource Map, rule string) (bool, error)
 	SetOtherCode(code string)
-	SetRuleFunction(code string)
+	SetRuleCode(code string)
 }
 
 func New(engine ...EvalEngine) RBAC {
