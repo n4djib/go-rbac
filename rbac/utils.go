@@ -14,14 +14,14 @@ func roleExist(roles []Role, role Role) bool {
 	return false
 }
 
-func permissionExist(permissions []Permission, permission Permission) bool {
-	for _, current := range permissions {
-		if current.ID == permission.ID {
-			return true
-		}
-	}
-	return false
-}
+// func permissionExist(permissions []Permission, permission Permission) bool {
+// 	for _, current := range permissions {
+// 		if current.ID == permission.ID {
+// 			return true
+// 		}
+// 	}
+// 	return false
+// }
 
 func checkUserHasRole(userRoles []string, roles []Role) bool {
 	for _, userRole := range userRoles {
@@ -34,6 +34,11 @@ func checkUserHasRole(userRoles []string, roles []Role) bool {
 	return false
 }
 
+// TODO move this to each engine
+// attach it to the struct and fill rulesMap
+// what if i rename the engine package
+//
+//	package rbac/engine/simple-otto
 func generateScript(permissions []Permission, ruleFunction string) (string, map[string]string) {
 	rulesMap := map[string]string{}
 

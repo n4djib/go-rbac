@@ -22,7 +22,9 @@ type RolePermission struct {
 	PermissionID int64 `db:"permission_id" json:"permission_id"`
 }
 
-type Map = map[string]any
-
-type PermissionsMap = map[int64]Permission
-type RolesMap = map[int64]Role
+type (
+	Principal      = map[string]any
+	Resource       = map[string]any
+	PermissionsMap = map[int64]Permission
+	RolesMap       = map[int64]Role
+)

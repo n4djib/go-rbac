@@ -2,7 +2,6 @@ package rbac
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 )
 
@@ -13,52 +12,54 @@ type RBAC interface {
 	SetPermissionParents(permissionParents []PermissionParent)
 	SetRolePermissions(permissionRoles []RolePermission)
 	GetEvalEngine() EvalEngine
-	IsAllowed(user Map, resource Map, permission string) (bool, error)
-}
-
-type rbac struct {
-	roles              []Role
-	permissions        []Permission
-	roleParents        []RoleParent
-	permissionParents  []PermissionParent
-	rolePermissions    []RolePermission
-	rolesSet           bool
-	permissionsSet     bool
-	rolePermissionsSet bool
-	evalEngine         EvalEngine
+	IsAllowed(user Principal, resource Resource, permission string) (bool, error)
 }
 
 type EvalEngine interface {
-	RunRule(user Map, resource Map, rule string) (bool, error)
-	SetOtherCode(code string)
-	SetRuleCode(code string)
+	SetHelperCode(code string) error
+	SetRuleCode(code string) error
+	RunRule(user Principal, resource Resource, rule string) (bool, error)
 }
+
+type rbac struct {
+	roles             []Role
+	permissions       []Permission
+	roleParents       []RoleParent
+	permissionParents []PermissionParent
+	rolePermissions   []RolePermission
+	evalEngine        EvalEngine
+}
+
+// TODO seperate the engin into its own package
+// New creates a new RBAC instance with the provided EvalEngine.
+// this to avoid installing goja or otto packages if not needed
 
 func New(engine ...EvalEngine) RBAC {
 	if len(engine) == 1 {
-		return & rbac{ evalEngine: engine[0] }
+		return &rbac{evalEngine: engine[0]}
 	}
-	return & rbac{ evalEngine: NewOttoEvalEngine() }
+	return &rbac{evalEngine: NewOttoEvalEngine()}
 }
 
 // setters and getters
 func (rbac *rbac) SetRoles(roles []Role) {
 	rbac.roles = roles
-	rbac.rolesSet = true
 }
+
 func (rbac *rbac) SetPermissions(permissions []Permission) {
 	rbac.permissions = permissions
-	rbac.permissionsSet = true
 }
+
 func (rbac *rbac) SetRoleParents(roleParents []RoleParent) {
 	rbac.roleParents = roleParents
 }
+
 func (rbac *rbac) SetPermissionParents(permissionParents []PermissionParent) {
 	rbac.permissionParents = permissionParents
 }
+
 func (rbac *rbac) SetRolePermissions(permissionRoles []RolePermission) {
 	rbac.rolePermissions = permissionRoles
-	rbac.rolePermissionsSet = true
 }
 
 func (rbac rbac) GetEvalEngine() EvalEngine {
@@ -73,6 +74,7 @@ func (rbac rbac) getRole(id int64) Role {
 	}
 	return Role{}
 }
+
 func (rbac rbac) getPermission(id int64) Permission {
 	for _, current := range rbac.permissions {
 		if current.ID == id {
@@ -81,6 +83,7 @@ func (rbac rbac) getPermission(id int64) Permission {
 	}
 	return Permission{}
 }
+
 func (rbac rbac) getRoleParents(id int64) []Role {
 	parents := []Role{}
 	for _, current := range rbac.roleParents {
@@ -91,6 +94,7 @@ func (rbac rbac) getRoleParents(id int64) []Role {
 	}
 	return parents
 }
+
 func (rbac rbac) getPermissionParents(id int64) []Permission {
 	parents := []Permission{}
 	for _, current := range rbac.permissionParents {
@@ -115,6 +119,7 @@ func (rbac rbac) getPermissionParents(id int64) []Permission {
 	}
 	return parents
 }
+
 func (rbac rbac) getPermissionRoles(id int64) []Role {
 	roles := []Role{}
 	for _, current := range rbac.rolePermissions {
@@ -127,52 +132,50 @@ func (rbac rbac) getPermissionRoles(id int64) []Role {
 }
 
 func (rbac rbac) collectRoles(foundRoles RolesMap) []Role {
-    roles := []Role{}
+	roles := []Role{}
 
 	var dfs func(child Role)
-    dfs = func(child Role) {
-      if roleExist(roles, child) {
-        return;
-      }
-      roles = append(roles, child)
-      parents := rbac.getRoleParents(child.ID);
-      for _, parent := range parents {
-        dfs(parent)
-      }
-    }
-    for key := range foundRoles {
-      child := foundRoles[key]
-      dfs(child)
-    }
-    return roles
-  }
+	dfs = func(child Role) {
+		if roleExist(roles, child) {
+			return
+		}
+		roles = append(roles, child)
+		parents := rbac.getRoleParents(child.ID)
+		for _, parent := range parents {
+			dfs(parent)
+		}
+	}
+	for key := range foundRoles {
+		child := foundRoles[key]
+		dfs(child)
+	}
+	return roles
+}
 
-func (rbac rbac) hasPermission(user Map, resource Map, firstPermission Permission) (bool, RolesMap) {
+func (rbac rbac) hasPermission(user Principal, resource Resource, firstPermission Permission) (bool, RolesMap, error) {
 	visitedPerissions := make(PermissionsMap)
-    foundRoles := make(RolesMap)
-    breaked := false
+	foundRoles := make(RolesMap)
+	breaked := false
 
-	var dfs func(child Permission) bool
-	dfs = func(child Permission) bool {
+	var dfs func(child Permission) (bool, error)
+	dfs = func(child Permission) (bool, error) {
 		if breaked {
-		  return breaked
+			return breaked, nil
 		}
 		if _, ok := visitedPerissions[child.ID]; ok {
-			return false;
+			return false, nil
 		}
 		// check rule is true
 		rule := strings.TrimSpace(child.Rule)
 		result, err := rbac.evalEngine.RunRule(user, resource, rule)
 		if err != nil {
-			fmt.Println("+++ Error in Run Rule: ", err.Error())
-			return false
+			return false, err
 		}
 		if !result {
-			return false
+			return false, nil
 		}
-		// fmt.Println("+ next:", child, result)
 		visitedPerissions[child.ID] = child
-		
+
 		// get roles related to permissions
 		// if user has appropriate role we break
 		roles := rbac.getPermissionRoles(child.ID)
@@ -183,27 +186,29 @@ func (rbac rbac) hasPermission(user Map, resource Map, firstPermission Permissio
 		userRoles := user["roles"].([]string)
 		hasRole := checkUserHasRole(userRoles, roles)
 		if hasRole {
-			// fmt.Println("++ breaking,", child.Permission)
-        	breaked = true
-			return true
+			breaked = true
+			return true, nil
 		}
 		// we next go to parents
 		parents := rbac.getPermissionParents(child.ID)
 		for _, parent := range parents {
 			if breaked {
-			//   fmt.Println("++ breaking,", parent.Permission)
-			  return true
+				return true, nil
 			}
-			dfs(parent)
+			// FIXME should stop(break) if error
+			_, hasError := dfs(parent)
+			if hasError != nil {
+				return false, hasError
+			}
 		}
-		return breaked
+		return breaked, nil
 	}
 
-	allowed := dfs(firstPermission)
-	return allowed, foundRoles
+	allowed, err := dfs(firstPermission)
+	return allowed, foundRoles, err
 }
 
-func (rbac rbac) IsAllowed(user Map, resource Map, permission string) (bool, error) {
+func (rbac rbac) IsAllowed(user Principal, resource Resource, permission string) (bool, error) {
 	// check the permission exist
 	var startingPermission Permission
 	for _, current := range rbac.permissions {
@@ -212,18 +217,21 @@ func (rbac rbac) IsAllowed(user Map, resource Map, permission string) (bool, err
 			break
 		}
 	}
+	// if permission not found
 	if startingPermission.ID == 0 {
 		return false, errors.New(permission + " permission not found.")
 	}
-	if !rbac.rolesSet {
-		return false, errors.New("setError: Roles are not Set")
+
+	if len(rbac.roles) == 0 {
+		return false, errors.New("roles list is Empty")
 	}
-	if !rbac.permissionsSet {
-		return false, errors.New("setError: Permissions are not Set")
+	if len(rbac.permissions) == 0 {
+		return false, errors.New("permissions list is Empty")
 	}
-	if !rbac.rolePermissionsSet {
-		return false, errors.New("setError: RolePermissions are not Set")
-	} 
+	if len(rbac.rolePermissions) == 0 {
+		return false, errors.New("rolePermissions list is Empty")
+	}
+
 	// check user has roles
 	userRoles, ok := user["roles"].([]string)
 	if !ok {
@@ -233,16 +241,18 @@ func (rbac rbac) IsAllowed(user Map, resource Map, permission string) (bool, err
 		return false, nil
 	}
 
-	allowed, foundRoles := rbac.hasPermission(user, resource, startingPermission)
-	// fmt.Println("foundRoles:::", foundRoles)
+	allowed, foundRoles, err := rbac.hasPermission(user, resource, startingPermission)
+	if err != nil {
+		return false, err
+	}
 
 	roles := rbac.collectRoles(foundRoles)
-	// fmt.Println("roles:::", roles)
 
 	if !allowed {
 		// check again if user has role if breaked allowed is false
 		hasRole := checkUserHasRole(userRoles, roles)
 		allowed = hasRole
 	}
+
 	return allowed, nil
 }

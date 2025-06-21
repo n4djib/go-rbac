@@ -3,23 +3,24 @@ package rbac
 import (
 	"errors"
 	"fmt"
-	"log"
+	"strconv"
 
 	"github.com/dop251/goja"
 	// "github.com/dop251/goja_nodejs/console"
 	// "github.com/dop251/goja_nodejs/require"
 )
 
+// type RulesMap = map[string]string // rule name to rule code mapping
+
 type GojaEvalEngine struct {
-	vm *goja.Runtime
+	vm           *goja.Runtime
 	otherCode    string
 	ruleFunction string
 	rulesMap     map[string]string
 	permissions  []Permission
 }
 
-const defaultRuleFunctionGoja = 
-`
+const defaultRuleFunctionGoja = `
 function rule%s(user, resource) {
 	return %s;
 }`
@@ -31,7 +32,7 @@ func NewGojaEvalEngine(permissions []Permission) (*GojaEvalEngine, error) {
 	// Run the function code
 	_, err := vm.RunString(script)
 	if err != nil {
-		return nil, errors.New("Error running Eval function code, " + err.Error())
+		return nil, errors.New("failed running script code")
 	}
 
 	// registry := require.NewRegistry()
@@ -39,20 +40,23 @@ func NewGojaEvalEngine(permissions []Permission) (*GojaEvalEngine, error) {
 	// console.Enable(vm)
 
 	evalEngine := &GojaEvalEngine{
-		vm: vm,
-		rulesMap: rulesMap,
+		vm:          vm,
+		rulesMap:    rulesMap,
 		permissions: permissions,
 	}
 	return evalEngine, nil
 }
 
-
-func (ee *GojaEvalEngine) SetOtherCode (code string) {
+func (ee *GojaEvalEngine) SetHelperCode(code string) error {
 	ee.otherCode = code
-	ee.vm.RunString(code)
+	_, err := ee.vm.RunString(code)
+	if err != nil {
+		return errors.New("failed running script code")
+	}
+	return err
 }
 
-func (ee *GojaEvalEngine) SetRuleCode (code string) {
+func (ee *GojaEvalEngine) SetRuleCode(code string) error {
 	ee.ruleFunction = code
 	script, rulesMap := generateScript(ee.permissions, code)
 	ee.rulesMap = rulesMap
@@ -60,24 +64,28 @@ func (ee *GojaEvalEngine) SetRuleCode (code string) {
 	// Run the function code
 	_, err := ee.vm.RunString(script)
 	if err != nil {
-		fmt.Println("Error running Eval function code " + err.Error())
+		return errors.New("failed running script code")
 	}
-} 
+	return err
+}
 
-
-func (ee *GojaEvalEngine) RunRule(user Map, resource Map, rule string) (bool, error) {
+func (ee *GojaEvalEngine) RunRule(user Principal, resource Resource, rule string) (bool, error) {
 	if rule == "" {
 		return true, nil
 	}
 
 	// get function to call
-	val := ee.rulesMap[rule]
-	functionName := "rule"+val
+	val, ok := ee.rulesMap[rule]
+	functionName := "rule" + val
+	fmt.Println("++ ", val, "++", ok)
+	if !ok {
+		return false, errors.New("rule is not in rulesMap")
+	}
 
 	// Retrieve the JavaScript function as a goja.Callable object
 	ruleFunc, ok := goja.AssertFunction(ee.vm.Get(functionName))
 	if !ok {
-		log.Fatalf("rule is not a function")
+		return false, errors.New("rule is not a function")
 	}
 
 	// Call the JavaScript function with arguments
@@ -85,9 +93,30 @@ func (ee *GojaEvalEngine) RunRule(user Map, resource Map, rule string) (bool, er
 	r := ee.vm.ToValue(resource)
 	res, err := ruleFunc(goja.Undefined(), u, r)
 	if err != nil {
-		log.Fatalf("Error calling function: %v", err)
+		return false, errors.New("failed calling function")
 	}
-	
+
 	result := res.ToBoolean()
 	return result, nil
+}
+
+func (ee *GojaEvalEngine) generateScript(permissions []Permission) {
+	rulesMap := map[string]string{}
+
+	i := 0
+	for _, p := range permissions {
+		_, ok := ee.rulesMap[p.Rule]
+		if !ok && p.Rule != "" {
+			ee.rulesMap[p.Rule] = strconv.Itoa(i)
+			i++
+		}
+	}
+
+	script := ``
+	for key, value := range rulesMap {
+		script = script + `
+	  		` + fmt.Sprintf(ee.ruleFunction, value, key)
+	}
+
+	// return script
 }

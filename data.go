@@ -12,6 +12,9 @@ var roles = []rbac.Role{
 	{ID: 4, Role: "SUPER-ADMIN"},
 }
 
+// TODO maybe we should remove IDs
+// it seems there is no need for them
+
 var permissions = []rbac.Permission{
 	{ID: 1, Permission: "create_post", Rule: ""},
 	{ID: 2, Permission: "edit_post", Rule: ""},
@@ -29,7 +32,7 @@ var roleParents = []rbac.RoleParent{
 	{RoleID: 1, ParentID: 2},
 	// {RoleID: 3, ParentID: 2},
 	// {RoleID: 1, ParentID: 3},
-	
+
 	{RoleID: 2, ParentID: 4},
 	// {RoleID: 4, ParentID: 1},
 }
@@ -39,7 +42,7 @@ var permissionParents = []rbac.PermissionParent{
 	{PermissionID: 7, ParentID: 8},
 	{PermissionID: 6, ParentID: 9},
 	{PermissionID: 9, ParentID: 8},
-	
+
 	{PermissionID: 8, ParentID: 6},
 	{PermissionID: 6, ParentID: 6},
 }
@@ -52,7 +55,6 @@ var rolePermissions = []rbac.RolePermission{
 	{RoleID: 1, PermissionID: 5},
 	{RoleID: 1, PermissionID: 7},
 	{RoleID: 2, PermissionID: 6},
-	
-	// TODO remove this
+
 	// {RoleID: 1, PermissionID: 9},
 }
