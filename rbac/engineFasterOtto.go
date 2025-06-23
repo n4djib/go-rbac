@@ -6,13 +6,13 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-type RulesMap = map[string]string // rule name to rule code mapping
+// type RulesMap = map[string]string // rule name to rule code mapping
 
 type FasterOttoEvalEngine struct {
 	vm           *otto.Otto
 	otherCode    string
 	ruleFunction string
-	rulesMap     RulesMap
+	rulesMap     map[string]string
 	permissions  []Permission
 }
 
@@ -79,7 +79,7 @@ func (ee *FasterOttoEvalEngine) RunRule(user Principal, resource Resource, rule 
 		return false, errors.New("failed calling function")
 	}
 
-	// Get the result as an integer
+	// Get the result as an boolean
 	result, err := value.ToBoolean()
 	if err != nil {
 		return false, errors.New("failed converting result")

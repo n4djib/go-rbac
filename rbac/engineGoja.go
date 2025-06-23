@@ -2,8 +2,6 @@ package rbac
 
 import (
 	"errors"
-	"fmt"
-	"strconv"
 
 	"github.com/dop251/goja"
 	// "github.com/dop251/goja_nodejs/console"
@@ -77,7 +75,7 @@ func (ee *GojaEvalEngine) RunRule(user Principal, resource Resource, rule string
 	// get function to call
 	val, ok := ee.rulesMap[rule]
 	functionName := "rule" + val
-	fmt.Println("++ ", val, "++", ok)
+	// fmt.Println("++ ", val, "++", ok)
 	if !ok {
 		return false, errors.New("rule is not in rulesMap")
 	}
@@ -98,25 +96,4 @@ func (ee *GojaEvalEngine) RunRule(user Principal, resource Resource, rule string
 
 	result := res.ToBoolean()
 	return result, nil
-}
-
-func (ee *GojaEvalEngine) generateScript(permissions []Permission) {
-	rulesMap := map[string]string{}
-
-	i := 0
-	for _, p := range permissions {
-		_, ok := ee.rulesMap[p.Rule]
-		if !ok && p.Rule != "" {
-			ee.rulesMap[p.Rule] = strconv.Itoa(i)
-			i++
-		}
-	}
-
-	script := ``
-	for key, value := range rulesMap {
-		script = script + `
-	  		` + fmt.Sprintf(ee.ruleFunction, value, key)
-	}
-
-	// return script
 }

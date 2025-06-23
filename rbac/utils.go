@@ -14,15 +14,6 @@ func roleExist(roles []Role, role Role) bool {
 	return false
 }
 
-// func permissionExist(permissions []Permission, permission Permission) bool {
-// 	for _, current := range permissions {
-// 		if current.ID == permission.ID {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
-
 func checkUserHasRole(userRoles []string, roles []Role) bool {
 	for _, userRole := range userRoles {
 		for _, role := range roles {

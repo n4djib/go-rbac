@@ -17,6 +17,9 @@
 - TODO change the JS version liek you did with the GO version
 	changed how it checks the setting of Roles and Permissions and RolePermissions
 - TODO isAllowed result should return a message indicating the reason for unauthorized
+- TODO are the rules able to run in both GO and JS
+- TODO how to test in both languages at the same time
+	maybe integration test where the JS tries the GO backend
 
 
 
@@ -37,4 +40,13 @@ we traverse the tree
 = a better optimization
 we don't evaluate the rule unless
 the rule leads to the role
+
+
+
+
+== Testing ==
+> go test ./rbac
+> go test ./rbac -coverprofile=c.out
+> go tool cover -html=c.out
+
 

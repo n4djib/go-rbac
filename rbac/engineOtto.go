@@ -51,14 +51,13 @@ func (ee *OttoEvalEngine) RunRule(user Principal, resource Resource, rule string
 	if err != nil {
 		return false, errors.New("failed running Eval function code")
 	}
-
 	// Call the function with arguments
 	value, err := ee.vm.Call("rule", nil, user, resource)
 	if err != nil {
 		return false, errors.New("failed calling function")
 	}
 
-	// Get the result as an integer
+	// Get the result as an boolean
 	result, err := value.ToBoolean()
 	if err != nil {
 		return false, errors.New("failed converting result")

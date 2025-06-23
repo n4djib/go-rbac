@@ -8,20 +8,22 @@ import (
 	"go-rbac/rbac"
 )
 
-const otherCode = `
-function listHasValue(lst, val) {
-	var values = Object.values(lst);
-	for(var i = 0; i < values.length; i++){
-		if(values[i] === val) {
-			return true;
-		}
-	}
-	return false;
-}
-`
+// const otherCode = `
+// function listHasValue(lst, val) {
+// 	var values = Object.values(lst);
+// 	for(var i = 0; i < values.length; i++){
+// 		if(values[i] === val) {
+// 			return true;
+// 		}
+// 	}
+// 	return false;
+// }
+// `
 
 func main() {
+	// GOJA is the fastest
 	// goja, _ := rbac.NewGojaEvalEngine(permissions)
+	// // goja.SetOtherCode(otherCode)
 	// rbacAuth := rbac.New(goja)
 
 	// fasterOtto, _ := rbac.NewFasterOtto(permissions)
@@ -31,6 +33,7 @@ func main() {
 
 	// evalEngine := rbacAuth.GetEvalEngine()
 	// evalEngine.SetOtherCode(otherCode)
+	// evalEngine.SetHelperCode(``)
 	// evalEngine.SetRuleCode(`function rule%s(user, resource) { return %s; }`)
 	// evalEngine.SetRuleCode(` %s; `)
 

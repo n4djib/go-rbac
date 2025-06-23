@@ -6,6 +6,7 @@ import (
 )
 
 type RBAC interface {
+	// TODO test for duplicates in data
 	SetRoles(roles []Role)
 	SetPermissions(permissions []Permission)
 	SetRoleParents(roleParents []RoleParent)
@@ -15,6 +16,7 @@ type RBAC interface {
 	IsAllowed(user Principal, resource Resource, permission string) (bool, error)
 }
 
+// TODO simplify the interface by removing Setters
 type EvalEngine interface {
 	SetHelperCode(code string) error
 	SetRuleCode(code string) error
@@ -34,6 +36,10 @@ type rbac struct {
 // New creates a new RBAC instance with the provided EvalEngine.
 // this to avoid installing goja or otto packages if not needed
 
+// TODO add a config object to New function
+// to allow setting other options like:
+// - evalEngine
+// - checkDuplications bool (enforce data checking for duplication when set)
 func New(engine ...EvalEngine) RBAC {
 	if len(engine) == 1 {
 		return &rbac{evalEngine: engine[0]}
@@ -66,7 +72,7 @@ func (rbac rbac) GetEvalEngine() EvalEngine {
 	return rbac.evalEngine
 }
 
-func (rbac rbac) getRole(id int64) Role {
+func (rbac rbac) getRole(id string) Role {
 	for _, current := range rbac.roles {
 		if current.ID == id {
 			return current
@@ -75,7 +81,7 @@ func (rbac rbac) getRole(id int64) Role {
 	return Role{}
 }
 
-func (rbac rbac) getPermission(id int64) Permission {
+func (rbac rbac) getPermission(id string) Permission {
 	for _, current := range rbac.permissions {
 		if current.ID == id {
 			return current
@@ -84,7 +90,7 @@ func (rbac rbac) getPermission(id int64) Permission {
 	return Permission{}
 }
 
-func (rbac rbac) getRoleParents(id int64) []Role {
+func (rbac rbac) getRoleParents(id string) []Role {
 	parents := []Role{}
 	for _, current := range rbac.roleParents {
 		if current.RoleID == id {
@@ -95,7 +101,7 @@ func (rbac rbac) getRoleParents(id int64) []Role {
 	return parents
 }
 
-func (rbac rbac) getPermissionParents(id int64) []Permission {
+func (rbac rbac) getPermissionParents(id string) []Permission {
 	parents := []Permission{}
 	for _, current := range rbac.permissionParents {
 		if current.PermissionID == id {
@@ -120,7 +126,7 @@ func (rbac rbac) getPermissionParents(id int64) []Permission {
 	return parents
 }
 
-func (rbac rbac) getPermissionRoles(id int64) []Role {
+func (rbac rbac) getPermissionRoles(id string) []Role {
 	roles := []Role{}
 	for _, current := range rbac.rolePermissions {
 		if current.PermissionID == id {
@@ -218,7 +224,7 @@ func (rbac rbac) IsAllowed(user Principal, resource Resource, permission string)
 		}
 	}
 	// if permission not found
-	if startingPermission.ID == 0 {
+	if startingPermission.ID == "" {
 		return false, errors.New(permission + " permission not found.")
 	}
 
