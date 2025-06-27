@@ -55,4 +55,4 @@
 > go test ./rbac -coverprofile=c.out
 > go tool cover -html=c.out
 > go test .\rbac\tests\rbac_test.go
-
+> go run ./examples/basic .
