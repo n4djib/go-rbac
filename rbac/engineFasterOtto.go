@@ -21,6 +21,7 @@ function rule%s(user, resource) {
 	return %s;
 }`
 
+// TODO change the name to New, after moving the otto package to its own package
 func NewFasterOtto(permissions []Permission) (*FasterOttoEvalEngine, error) {
 	vm := otto.New()
 	script, rulesMap := generateScript(permissions, defaultRuleFunctionFasterOtto)

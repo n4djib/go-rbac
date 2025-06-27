@@ -1,33 +1,80 @@
 package rbac
 
-// FIXME the id is an Int64, but it should be a string
-// we don't want to force the ID to be an int64
-// it should be a string, so we can use any type of ID
+import "errors"
+
 type Role struct {
-	ID   string `db:"id" json:"id"`
-	Role string `db:"role" json:"role"`
+	Role string `json:"role"`
 }
+type roleInternal struct {
+	id    int
+	_role string
+}
+
 type Permission struct {
-	ID         string `db:"id" json:"id"`
-	Permission string `db:"permission" json:"permission"`
-	Rule       string `db:"rule" json:"rule"`
+	Permission string `json:"permission"`
+	Rule       string `json:"rule"`
+}
+type permissionInternal struct {
+	id          int
+	_permission string
+	rule        string
 }
 type RoleParent struct {
-	RoleID   string `db:"role_id" json:"role_id"`
-	ParentID string `db:"parent_id" json:"parent_id"`
+	Role   string `json:"role_id"`
+	Parent string `json:"parent_id"`
 }
+type roleParentInternal struct {
+	roleID   int
+	parentID int
+}
+
 type PermissionParent struct {
-	PermissionID string `db:"permission_id" json:"permission_id"`
-	ParentID     string `db:"parent_id" json:"parent_id"`
+	Permission string `json:"permission_id"`
+	Parent     string `json:"parent_id"`
 }
+type permissionParentInternal struct {
+	permissionID int
+	parentID     int
+}
+
 type RolePermission struct {
-	RoleID       string `db:"role_id" json:"role_id"`
-	PermissionID string `db:"permission_id" json:"permission_id"`
+	Role       string `json:"role"`
+	Permission string `json:"permission"`
+}
+type rolePermissionInternal struct {
+	roleID       int
+	permissionID int
+}
+
+type RbacData struct {
+	Roles             []Role             `json:"roles"`
+	Permissions       []Permission       `json:"permissions"`
+	RoleParents       []RoleParent       `json:"roleParents"`
+	PermissionParents []PermissionParent `json:"permissionParents"`
+	RolePermissions   []RolePermission   `json:"rolePermissions"`
 }
 
 type (
-	Principal      = map[string]any
-	Resource       = map[string]any
-	PermissionsMap = map[string]Permission
-	RolesMap       = map[string]Role
+	Principal map[string]any
+	Resource  map[string]any
+)
+
+func (p Principal) validate() error {
+	// Check required fields exist
+	required := []string{"id", "roles"}
+	for _, field := range required {
+		if _, exists := p[field]; !exists {
+			return errors.New("missing required field: " + field)
+		}
+	}
+	// Type validation
+	if _, ok := p["roles"].([]string); !ok {
+		return errors.New("roles must be a []string")
+	}
+	return nil
+}
+
+type (
+	rolesMap       map[int]roleInternal
+	permissionsMap map[int]permissionInternal
 )

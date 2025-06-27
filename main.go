@@ -37,11 +37,16 @@ func main() {
 	// evalEngine.SetRuleCode(`function rule%s(user, resource) { return %s; }`)
 	// evalEngine.SetRuleCode(` %s; `)
 
-	rbacAuth.SetRoles(roles)
-	rbacAuth.SetPermissions(permissions)
-	rbacAuth.SetRoleParents(roleParents)
-	rbacAuth.SetPermissionParents(permissionParents)
-	rbacAuth.SetRolePermissions(rolePermissions)
+	err := rbacAuth.SetRBAC(rbac.RbacData{
+		Roles:             roles,
+		Permissions:       permissions,
+		RoleParents:       roleParents,
+		PermissionParents: permissionParents,
+		RolePermissions:   rolePermissions,
+	})
+	if err != nil {
+		log.Fatal("+2+ error: ", err.Error())
+	}
 
 	user := rbac.Principal{
 		"id": 5, "name": "nadjib", "age": 4,
@@ -53,7 +58,7 @@ func main() {
 
 	resource := rbac.Resource{
 		"id": 5, "title": "tutorial", "owner": 5,
-		"list": []int{1, 2, 3, 4, 5, 6},
+		// "list": []int{1, 2, 3, 4, 5, 6},
 	}
 
 	// ee := rbacAuth.GetEvalEngine()
@@ -67,15 +72,15 @@ func main() {
 
 	start := time.Now()
 
-	iterations := 1000
+	iterations := 1
 	globalAllowed := true
 	duration := float64(0.0)
 	for i := 0; i < iterations; i++ {
 		startFinal := time.Now()
 		// allowed, err := rbacAuth.IsAllowed(user, resource, "edit_user")
-		allowed, err := rbacAuth.IsAllowed(user, resource, "edit_own_user")
+		allowed, err := rbacAuth.IsAllowed(user, resource, "edit_post")
 		if err != nil {
-			log.Fatal("++++ error: ", err.Error())
+			log.Fatal("+3+ error: ", err.Error())
 		}
 		since := time.Since(startFinal)
 		// fmt.Println("- allowed:", allowed, "- duration:", since)

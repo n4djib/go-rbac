@@ -5,19 +5,19 @@ import (
 	"strconv"
 )
 
-func roleExist(roles []Role, role Role) bool {
+func roleExist(roles []roleInternal, role roleInternal) bool {
 	for _, current := range roles {
-		if current.ID == role.ID {
+		if current.id == role.id {
 			return true
 		}
 	}
 	return false
 }
 
-func checkUserHasRole(userRoles []string, roles []Role) bool {
+func checkUserHasRole(userRoles []string, roles []roleInternal) bool {
 	for _, userRole := range userRoles {
 		for _, role := range roles {
-			if userRole == role.Role {
+			if userRole == role._role {
 				return true
 			}
 		}

@@ -1,46 +1,52 @@
-
-- TODO try to use RunRule (check rule) from the engine 
+== TODOs ==
+-  try to use RunRule (check rule) from the engine 
 	to allow the user to test if the engine can evaluate the rule
-- TODO need to improve error handling
-- TODO you can add error state in struct
-- TODO make a library
-- TODO what if we change the data into graph at init
+			- need to improve error handling
+			- you can add error state in struct
+				why do this??
+- make it a library
+- what if we change the data into graph at init
     would that be faster?
-- TODO set the data as maps not slices
+- set the data as maps not slices
     would that be faster?
     the slice length is short
-- TODO embed (promot method by composition) engin in rbac
+	Lookup Operations:
+		Maps: O(1) average case for lookups by key - very fast
+		Slices: O(n) for searching unless sorted (then O(log n) with binary search)
+- embed (promot method by composition) engin in rbac
     do it if it makes the API is easier
-- TODO add RULE to roles
-- TODO how to define engine from outside package rbac
-- TODO add testing
-- TODO change the JS version liek you did with the GO version
+- add RULE to roles
+- how to define engine from outside package rbac
+			- add testing
+- change the JS version liek you did with the GO version
 	changed how it checks the setting of Roles and Permissions and RolePermissions
-- TODO isAllowed result should return a message indicating the reason for unauthorized
-- TODO are the rules able to run in both GO and JS
-- TODO how to test in both languages at the same time
+- isAllowed result should return a message indicating the reason for unauthorized
+- are the rules able to run in both GO and JS
+- how to test in both languages at the same time
 	maybe integration test where the JS tries the GO backend
-
-
-
-== GO-RBAC
-rules for Roles
-role: manager
-	but the rule says manager of
-	maybe you are a manager if a condition applies
-		like if your manager is absent
-
-= GO-RBAC Optimization
-
-traverse the tree as if the rules are all true without ruunning them
-and check if the user has the required role
-if he has the reqiored role
-we traverse the tree
-
-= a better optimization
-we don't evaluate the rule unless
-the rule leads to the role
-
+- add a flag to enable debug mode
+	to debug the engine and the rbac library
+	to watch the decision making process
+- create a UI relations visualizer and editor
+	abstract enaugh
+- provide a database schema in SQL (to aid in crteation of the database)
+- rules for Roles
+	role: manager
+		but the rule says manager of
+		maybe you are a manager if a condition applies
+			like if your manager is absent
+- a better optimization
+	we don't evaluate the rule unless
+	the rule leads to the role
+	traverse the tree as if the rules are all true without ruunning them
+	and check if the user has the required role
+	if he has the reqiored role
+	we traverse the tree
+- can we use Goroutines to speed things up?
+- when creating New rbac, at first pass a nil as an empty implementation of the interface
+	and if it is empty don't use rules (and don't accept them in SetRbac)
+- 
+- 
 
 
 
@@ -48,5 +54,5 @@ the rule leads to the role
 > go test ./rbac
 > go test ./rbac -coverprofile=c.out
 > go tool cover -html=c.out
-
+> go test .\rbac\tests\rbac_test.go
 
