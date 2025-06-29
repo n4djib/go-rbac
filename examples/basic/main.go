@@ -22,10 +22,11 @@ import (
 // `
 
 func main() {
+	// rulesList := extractRulesListFromPermissions(permissions)
 	// GOJA is the fastest
-	// engine, _ := rbac.NewGojaEvalEngine(permissions)
+	// engine, _ := rbac.NewGojaEvalEngine(rulesList)
 	// // engine.SetOtherCode(otherCode)
-	// engine, _ := faster_otto.New(permissions)
+	// engine, _ := faster_otto.New(rulesList)
 	engine := simple_otto.New()
 	rbacAuth, err := rbac.New(engine)
 	//
@@ -50,7 +51,7 @@ func main() {
 		log.Fatal("+2+ error: ", err.Error())
 	}
 
-	user := rbac.Principal{
+	principal := rbac.Principal{
 		"id": 5, "name": "nadjib", "age": 4,
 		"roles": []string{
 			// "ADMIN",
@@ -70,8 +71,8 @@ func main() {
 	duration := float64(0.0)
 	for i := 0; i < iterations; i++ {
 		startFinal := time.Now()
-		// allowed, err := rbacAuth.IsAllowed(user, resource, "edit_user")
-		allowed, err := rbacAuth.IsAllowed(user, resource, "edit_post")
+		// allowed, err := rbacAuth.IsAllowed(principal, resource, "edit_user")
+		allowed, err := rbacAuth.IsAllowed(principal, resource, "edit_post")
 		if err != nil {
 			log.Fatal("+3+ error: ", err.Error())
 		}
@@ -86,4 +87,12 @@ func main() {
 
 	// execution duration
 	fmt.Println("- Duration:", time.Since(start))
+}
+
+func extractRulesListFromPermissions(permissions []rbac.Permission) []string {
+	rulesList := make([]string, len(permissions))
+	for _, p := range permissions {
+		rulesList = append(rulesList, p.Rule)
+	}
+	return rulesList
 }

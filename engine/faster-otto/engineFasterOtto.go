@@ -5,19 +5,17 @@ import (
 	"fmt"
 	"strconv"
 
-	rbac "go-rbac/rbac"
-
 	"github.com/robertkrimen/otto"
 )
 
-type rulesMapType = map[string]string
+type rulesMapType map[string]string
 
 type fasterOttoEvalEngine struct {
 	vm           *otto.Otto
 	otherCode    string
 	ruleFunction string
 	rulesMap     rulesMapType
-	permissions  []rbac.Permission
+	rulesList    []string
 }
 
 const defaultRuleFunctionFasterOtto = `
@@ -25,9 +23,9 @@ function rule%s(user, resource) {
 	return %s;
 }`
 
-func New(permissions []rbac.Permission) (*fasterOttoEvalEngine, error) {
+func New(rulesList []string) (*fasterOttoEvalEngine, error) {
 	vm := otto.New()
-	script, rulesMap := generateScript(permissions, defaultRuleFunctionFasterOtto)
+	script, rulesMap := generateScript(rulesList, defaultRuleFunctionFasterOtto)
 
 	// Run the function code
 	_, err := vm.Run(script)
@@ -36,9 +34,9 @@ func New(permissions []rbac.Permission) (*fasterOttoEvalEngine, error) {
 	}
 
 	evalEngine := &fasterOttoEvalEngine{
-		vm:          vm,
-		rulesMap:    rulesMap,
-		permissions: permissions,
+		vm:        vm,
+		rulesMap:  rulesMap,
+		rulesList: rulesList,
 	}
 	return evalEngine, nil
 }
@@ -54,7 +52,7 @@ func (ee *fasterOttoEvalEngine) SetHelperCode(code string) error {
 
 func (ee *fasterOttoEvalEngine) SetRuleCode(code string) error {
 	ee.ruleFunction = code
-	script, rulesMap := generateScript(ee.permissions, code)
+	script, rulesMap := generateScript(ee.rulesList, code)
 	ee.rulesMap = rulesMap
 
 	// Run the function code
@@ -92,14 +90,14 @@ func (ee *fasterOttoEvalEngine) RunRule(principal map[string]any, resource map[s
 	return result, nil
 }
 
-func generateScript(permissions []rbac.Permission, ruleFunction string) (string, map[string]string) {
+func generateScript(rulesList []string, ruleFunction string) (string, map[string]string) {
 	rulesMap := rulesMapType{}
 
 	i := 0
-	for _, p := range permissions {
-		_, ok := rulesMap[p.Rule]
-		if !ok && p.Rule != "" {
-			rulesMap[p.Rule] = strconv.Itoa(i)
+	for _, rule := range rulesList {
+		_, ok := rulesMap[rule]
+		if !ok && rule != "" {
+			rulesMap[rule] = strconv.Itoa(i)
 			i++
 		}
 	}

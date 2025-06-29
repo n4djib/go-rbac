@@ -9,10 +9,10 @@ func roleExist(roles []roleInternal, role roleInternal) bool {
 	return false
 }
 
-func checkUserHasRole(userRoles []string, roles []roleInternal) bool {
-	for _, userRole := range userRoles {
+func checkPrincipalHasRole(principalRoles []string, roles []roleInternal) bool {
+	for _, principalRole := range principalRoles {
 		for _, role := range roles {
-			if userRole == role._role {
+			if principalRole == role._role {
 				return true
 			}
 		}

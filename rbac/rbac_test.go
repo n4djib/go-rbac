@@ -43,12 +43,12 @@ func TestPincipalValidation(t *testing.T) {
 			err := td.principal.validate()
 			if err != nil {
 				if err.Error() != td.error.Error() {
-					t.Errorf("Expected (%v), got (%v)", td.error, err.Error())
+					t.Fatalf("Expected (%v), got (%v)", td.error, err.Error())
 				}
 			}
 			if err == nil {
 				if err != td.error {
-					t.Errorf("Expected (%v), got (%v)", td.error, err)
+					t.Fatalf("Expected (%v), got (%v)", td.error, err)
 				}
 			}
 		})

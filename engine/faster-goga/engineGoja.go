@@ -5,21 +5,19 @@ import (
 	"fmt"
 	"strconv"
 
-	rbac "go-rbac/rbac"
-
 	"github.com/dop251/goja"
 	// "github.com/dop251/goja_nodejs/console"
 	// "github.com/dop251/goja_nodejs/require"
 )
 
-type rulesMapType = map[string]string
+type rulesMapType map[string]string
 
 type gojaEvalEngine struct {
 	vm           *goja.Runtime
 	otherCode    string
 	ruleFunction string
 	rulesMap     rulesMapType
-	permissions  []rbac.Permission
+	rulesList    []string
 }
 
 const defaultRuleFunctionGoja = `
@@ -27,9 +25,9 @@ function rule%s(user, resource) {
 	return %s;
 }`
 
-func New(permissions []rbac.Permission) (*gojaEvalEngine, error) {
+func New(rulesList []string) (*gojaEvalEngine, error) {
 	vm := goja.New()
-	script, rulesMap := generateScript(permissions, defaultRuleFunctionGoja)
+	script, rulesMap := generateScript(rulesList, defaultRuleFunctionGoja)
 
 	// Run the function code
 	_, err := vm.RunString(script)
@@ -42,9 +40,9 @@ func New(permissions []rbac.Permission) (*gojaEvalEngine, error) {
 	// console.Enable(vm)
 
 	evalEngine := &gojaEvalEngine{
-		vm:          vm,
-		rulesMap:    rulesMap,
-		permissions: permissions,
+		vm:        vm,
+		rulesMap:  rulesMap,
+		rulesList: rulesList,
 	}
 	return evalEngine, nil
 }
@@ -60,7 +58,7 @@ func (ee *gojaEvalEngine) SetHelperCode(code string) error {
 
 func (ee *gojaEvalEngine) SetRuleCode(code string) error {
 	ee.ruleFunction = code
-	script, rulesMap := generateScript(ee.permissions, code)
+	script, rulesMap := generateScript(ee.rulesList, code)
 	ee.rulesMap = rulesMap
 
 	// Run the function code
@@ -102,14 +100,14 @@ func (ee *gojaEvalEngine) RunRule(principal map[string]any, resource map[string]
 	return result, nil
 }
 
-func generateScript(permissions []rbac.Permission, ruleFunction string) (string, map[string]string) {
+func generateScript(rulesList []string, ruleFunction string) (string, map[string]string) {
 	rulesMap := rulesMapType{}
 
 	i := 0
-	for _, p := range permissions {
-		_, ok := rulesMap[p.Rule]
-		if !ok && p.Rule != "" {
-			rulesMap[p.Rule] = strconv.Itoa(i)
+	for _, rule := range rulesList {
+		_, ok := rulesMap[rule]
+		if !ok && rule != "" {
+			rulesMap[rule] = strconv.Itoa(i)
 			i++
 		}
 	}

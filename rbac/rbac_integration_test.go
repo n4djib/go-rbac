@@ -354,8 +354,7 @@ func TestIsAllowed(t *testing.T) {
 
 			rbacAuth, err := rbac.New(engine)
 			if err != nil {
-				t.Errorf("expected no error in engine.New(), got (%v)", err.Error())
-				return
+				t.Fatalf("expected no error in engine.New(), got (%v)", err.Error())
 			}
 			err = rbacAuth.SetRBAC(rbac.RbacData{
 				Roles:             td.roles,
@@ -366,19 +365,21 @@ func TestIsAllowed(t *testing.T) {
 			})
 			if err != nil {
 				if err.Error() != td.error.Error() {
-					t.Errorf("in SetRBAC, got (%v)", err.Error())
+					t.Fatalf("in SetRBAC, got (%v)", err.Error())
 				}
+				// if there is an expected error in SetRBAC we return
+				// without warning
 				return
 			}
 
 			allowed, err := rbacAuth.IsAllowed(td.principal, td.resource, td.permission)
 			if err != nil {
 				if err.Error() != td.error.Error() {
-					t.Errorf("Expected %v, got %v", td.expectedAllowed, err.Error())
+					t.Fatalf("Expected %v, got %v", td.expectedAllowed, err.Error())
 				}
 			}
 			if err == nil && allowed != expectedAllowed {
-				t.Errorf("Expected (%v), got (%v)", td.expectedAllowed, allowed)
+				t.Fatalf("Expected (%v), got (%v)", td.expectedAllowed, allowed)
 			}
 		})
 	}
@@ -423,9 +424,11 @@ func TestWithEvalEngines(t *testing.T) {
 		{Role: "MANAGER", Permission: "delete_post"},
 	}
 
+	rulesList := extractRulesListFromPermissions(permissions)
+
 	engineOtto := simple_otto.New()
-	engineFasterOtto, _ := faster_otto.New(permissions)
-	engineGoga, _ := faster_goga.New(permissions)
+	engineFasterOtto, _ := faster_otto.New(rulesList)
+	engineGoga, _ := faster_goga.New(rulesList)
 
 	data := []struct {
 		roles             []rbac.Role
@@ -570,9 +573,7 @@ func TestWithEvalEngines(t *testing.T) {
 		t.Run(td.name, func(t *testing.T) {
 			rbacAuth, err := rbac.New(td.engine)
 			if err != nil {
-				// FIXME use t.Fatalf() to stop immidiately
-				t.Errorf("expected no error in rbac.New, got (%v)", err.Error())
-				return
+				t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
 			}
 
 			err = rbacAuth.SetRBAC(rbac.RbacData{
@@ -589,12 +590,10 @@ func TestWithEvalEngines(t *testing.T) {
 				}
 			}
 			if err == nil && td.error != nil {
-				t.Errorf("Expected (%v), got (%v)", td.error, err)
-				return
+				t.Fatalf("Expected (%v), got (%v)", td.error, err)
 			}
 			if td.error == nil && err != nil {
-				t.Errorf("Expected (%v), got (%v)", td.error, err)
-				return
+				t.Fatalf("Expected (%v), got (%v)", td.error, err)
 			}
 
 			// if there is an error from previous we dont' test allowed
@@ -604,13 +603,21 @@ func TestWithEvalEngines(t *testing.T) {
 
 			allowed, err := rbacAuth.IsAllowed(td.principal, td.resource, td.permission)
 			if err != nil {
-				t.Errorf("Expected nil, got (%v)", err.Error())
+				t.Fatalf("Expected nil, got (%v)", err.Error())
 				return
 			}
 			// TODO use testify in your test assertions
 			if allowed != td.allowed {
-				t.Errorf("Expected (%v), got (%v)", td.allowed, allowed)
+				t.Fatalf("Expected (%v), got (%v)", td.allowed, allowed)
 			}
 		})
 	}
+}
+
+func extractRulesListFromPermissions(permissions []rbac.Permission) []string {
+	rulesList := make([]string, len(permissions))
+	for _, p := range permissions {
+		rulesList = append(rulesList, p.Rule)
+	}
+	return rulesList
 }

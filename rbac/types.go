@@ -8,7 +8,8 @@ type RBAC interface {
 }
 
 type EvalEngine interface {
-	RunRule(user map[string]any, resource map[string]any, rule string) (bool, error)
+	// TODO how is it accepting map[string]any
+	RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error)
 }
 
 type rbac struct {

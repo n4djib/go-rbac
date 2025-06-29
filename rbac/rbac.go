@@ -111,6 +111,7 @@ func setRoleParents(rbac *rbac, roleParents []RoleParent) error {
 		if err != nil {
 			return err
 		}
+		// FIXME we are not checking for duplicate role-parents
 		rbac.roleParents[i] = roleParentInternal{
 			roleID:   roleID,
 			parentID: parentID,
@@ -130,6 +131,7 @@ func setPermissionParents(rbac *rbac, permissionParents []PermissionParent) erro
 		if err != nil {
 			return err
 		}
+		// FIXME we are not checking for duplicate permission-parents
 		rbac.permissionParents[i] = permissionParentInternal{
 			permissionID: permissionID,
 			parentID:     parentID,
@@ -279,6 +281,7 @@ func (rbac rbac) hasPermission(principal Principal, resource Resource, firstPerm
 		var result bool = true
 		var err error = nil
 		if len(rule) > 1 {
+			// FIX how is it accepting Principal type rather thatn enforcing map[strnig]any
 			result, err = rbac.evalEngine.RunRule(principal, resource, rule)
 		}
 		if err != nil {
@@ -296,8 +299,8 @@ func (rbac rbac) hasPermission(principal Principal, resource Resource, firstPerm
 			foundRoles[role.id] = role
 		}
 
-		userRoles := principal["roles"].([]string)
-		hasRole := checkUserHasRole(userRoles, roles)
+		principalRoles := principal["roles"].([]string)
+		hasRole := checkPrincipalHasRole(principalRoles, roles)
 		if hasRole {
 			breaked = true
 			return true, nil
@@ -350,12 +353,12 @@ func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission st
 		return false, errors.New("rolePermissions list is Empty")
 	}
 
-	// check user has roles
-	userRoles, ok := principal["roles"].([]string)
+	// check principal has roles
+	principalRoles, ok := principal["roles"].([]string)
 	if !ok {
 		return false, errors.New("roles of type []string not found in principal")
 	}
-	if len(userRoles) == 0 {
+	if len(principalRoles) == 0 {
 		return false, nil
 	}
 
@@ -367,8 +370,8 @@ func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission st
 	roles := rbac.collectRoles(foundRoles)
 
 	if !allowed {
-		// check again if user has role if breaked allowed is false
-		hasRole := checkUserHasRole(userRoles, roles)
+		// check again if principal has role if breaked allowed is false
+		hasRole := checkPrincipalHasRole(principalRoles, roles)
 		allowed = hasRole
 	}
 

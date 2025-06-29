@@ -35,7 +35,6 @@ func (ee *ottoEvalEngine) SetHelperCode(code string) error {
 
 func (ee *ottoEvalEngine) SetRuleCode(code string) {
 	ee.ruleFunction = code
-	// return nil
 }
 
 func (ee *ottoEvalEngine) RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error) {
