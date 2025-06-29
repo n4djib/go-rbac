@@ -26,7 +26,7 @@ func main() {
 	// engine, _ := rbac.NewGojaEvalEngine(permissions)
 	// // engine.SetOtherCode(otherCode)
 	// engine, _ := faster_otto.New(permissions)
-	engine, _ := simple_otto.New()
+	engine := simple_otto.New()
 	rbacAuth, err := rbac.New(engine)
 	//
 	// rbacAuth, err := rbac.New()

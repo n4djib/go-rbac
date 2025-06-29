@@ -107,7 +107,7 @@ func TestSetRBAC(t *testing.T) {
 		t.Run(td.name, func(t *testing.T) {
 			// engine, _ := faster_goga.New(permissions)
 			// engine, _ := faster_otto.New(permissions)
-			engine, _ := simple_otto.New()
+			engine := simple_otto.New()
 
 			rbacAuth, err := rbac.New(engine)
 			if err != nil {
@@ -350,7 +350,7 @@ func TestIsAllowed(t *testing.T) {
 
 			// engine, _ := faster_goga.New(permissions)
 			// engine, _ := faster_otto.New(permissions)
-			engine, _ := simple_otto.New()
+			engine := simple_otto.New()
 
 			rbacAuth, err := rbac.New(engine)
 			if err != nil {
@@ -423,7 +423,7 @@ func TestWithEvalEngines(t *testing.T) {
 		{Role: "MANAGER", Permission: "delete_post"},
 	}
 
-	engineOtto, _ := simple_otto.New()
+	engineOtto := simple_otto.New()
 	engineFasterOtto, _ := faster_otto.New(permissions)
 	engineGoga, _ := faster_goga.New(permissions)
 

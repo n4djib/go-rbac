@@ -17,12 +17,11 @@ const defaultRuleFunction = `function rule(user, resource) {
 	return %s;
 }`
 
-// FIXME you can remove error return
-func New() (*ottoEvalEngine, error) {
+func New() *ottoEvalEngine {
 	return &ottoEvalEngine{
 		vm:           otto.New(),
 		ruleFunction: defaultRuleFunction,
-	}, nil
+	}
 }
 
 func (ee *ottoEvalEngine) SetHelperCode(code string) error {
@@ -34,10 +33,9 @@ func (ee *ottoEvalEngine) SetHelperCode(code string) error {
 	return err
 }
 
-// FIXME you can remove error return
-func (ee *ottoEvalEngine) SetRuleCode(code string) error {
+func (ee *ottoEvalEngine) SetRuleCode(code string) {
 	ee.ruleFunction = code
-	return nil
+	// return nil
 }
 
 func (ee *ottoEvalEngine) RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error) {
