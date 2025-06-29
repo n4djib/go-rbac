@@ -1,4 +1,4 @@
-package rbac
+package simple_otto
 
 import (
 	"errors"
@@ -7,7 +7,7 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-type OttoEvalEngine struct {
+type ottoEvalEngine struct {
 	vm           *otto.Otto
 	otherCode    string
 	ruleFunction string
@@ -17,14 +17,15 @@ const defaultRuleFunction = `function rule(user, resource) {
 	return %s;
 }`
 
-func NewOttoEvalEngine() *OttoEvalEngine {
-	return &OttoEvalEngine{
+// FIXME you can remove error return
+func New() (*ottoEvalEngine, error) {
+	return &ottoEvalEngine{
 		vm:           otto.New(),
 		ruleFunction: defaultRuleFunction,
-	}
+	}, nil
 }
 
-func (ee *OttoEvalEngine) SetHelperCode(code string) error {
+func (ee *ottoEvalEngine) SetHelperCode(code string) error {
 	ee.otherCode = code
 	_, err := ee.vm.Run(code)
 	if err != nil {
@@ -33,14 +34,15 @@ func (ee *OttoEvalEngine) SetHelperCode(code string) error {
 	return err
 }
 
-func (ee *OttoEvalEngine) SetRuleCode(code string) error {
+// FIXME you can remove error return
+func (ee *ottoEvalEngine) SetRuleCode(code string) error {
 	ee.ruleFunction = code
 	return nil
 }
 
-func (ee *OttoEvalEngine) RunRule(user Principal, resource Resource, rule string) (bool, error) {
+func (ee *ottoEvalEngine) RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error) {
 	if rule == "" {
-		return true, nil
+		return false, errors.New("rule is empty")
 	}
 
 	// format JS script
@@ -52,7 +54,7 @@ func (ee *OttoEvalEngine) RunRule(user Principal, resource Resource, rule string
 		return false, errors.New("failed running Eval function code")
 	}
 	// Call the function with arguments
-	value, err := ee.vm.Call("rule", nil, user, resource)
+	value, err := ee.vm.Call("rule", nil, principal, resource)
 	if err != nil {
 		return false, errors.New("failed calling function")
 	}

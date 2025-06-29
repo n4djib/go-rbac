@@ -2,6 +2,24 @@ package rbac
 
 import "errors"
 
+type RBAC interface {
+	SetRBAC(data RbacData) error
+	IsAllowed(principal Principal, resource Resource, permission string) (bool, error)
+}
+
+type EvalEngine interface {
+	RunRule(user map[string]any, resource map[string]any, rule string) (bool, error)
+}
+
+type rbac struct {
+	roles             []roleInternal
+	permissions       []permissionInternal
+	roleParents       []roleParentInternal
+	permissionParents []permissionParentInternal
+	rolePermissions   []rolePermissionInternal
+	evalEngine        EvalEngine
+}
+
 type Role struct {
 	Role string `json:"role"`
 }
@@ -17,8 +35,10 @@ type Permission struct {
 type permissionInternal struct {
 	id          int
 	_permission string
-	rule        string
+	// TODO make it optional (in the input) when using default eval engine
+	rule string
 }
+
 type RoleParent struct {
 	Role   string `json:"role_id"`
 	Parent string `json:"parent_id"`
@@ -60,7 +80,7 @@ type (
 )
 
 func (p Principal) validate() error {
-	// Check required fields exist
+	// check required fields exist
 	required := []string{"id", "roles"}
 	for _, field := range required {
 		if _, exists := p[field]; !exists {

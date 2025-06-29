@@ -1,40 +1,16 @@
 == TODOs ==
 -  try to use RunRule (check rule) from the engine 
 	to allow the user to test if the engine can evaluate the rule
-			- need to improve error handling
-			- you can add error state in struct
-				why do this??
 - make it a library
-- what if we change the data into graph at init
-    would that be faster?
-- set the data as maps not slices
-    would that be faster?
-    the slice length is short
-	Lookup Operations:
-		Maps: O(1) average case for lookups by key - very fast
-		Slices: O(n) for searching unless sorted (then O(log n) with binary search)
-- embed (promot method by composition) engin in rbac
-    do it if it makes the API is easier
-- add RULE to roles
-- how to define engine from outside package rbac
-			- add testing
-- change the JS version liek you did with the GO version
-	changed how it checks the setting of Roles and Permissions and RolePermissions
-- isAllowed result should return a message indicating the reason for unauthorized
-- are the rules able to run in both GO and JS
-- how to test in both languages at the same time
-	maybe integration test where the JS tries the GO backend
-- add a flag to enable debug mode
-	to debug the engine and the rbac library
-	to watch the decision making process
-- create a UI relations visualizer and editor
-	abstract enaugh
-- provide a database schema in SQL (to aid in crteation of the database)
-- rules for Roles
-	role: manager
-		but the rule says manager of
-		maybe you are a manager if a condition applies
-			like if your manager is absent
+- optimizations
+	what if we change the data into graph at init
+		would that be faster?
+	set the data as maps not slices
+		would that be faster?
+		the slice length is short
+		Lookup Operations:
+			Maps: O(1) average case for lookups by key - very fast
+			Slices: O(n) for searching unless sorted (then O(log n) with binary search)
 - a better optimization
 	we don't evaluate the rule unless
 	the rule leads to the role
@@ -43,14 +19,42 @@
 	if he has the reqiored role
 	we traverse the tree
 - can we use Goroutines to speed things up?
-- when creating New rbac, at first pass a nil as an empty implementation of the interface
-	and if it is empty don't use rules (and don't accept them in SetRbac)
+- change the JS (library) like you did with the GO version
+	changed how it checks the setting of Roles and Permissions and RolePermissions
+- isAllowed result should return a message indicating the reason for unauthorized
+- are the rules able to run in both GO and JS
+	?????????
+- how to test in both languages at the same time
+	maybe integration test where the JS tries the GO backend
+- add a flag to enable debug mode
+	to debug the engine and the rbac library
+	to watch the decision making process
+- create a UI relations visualizer and editor
+	abstract enaugh
+- provide a database schema in SQL (to aid clients in creation of the database)
+- rules for Roles
+	role: manager
+		but the rule says manager of (group)
+		maybe you are a manager if a condition applies
+			like if your manager is absent
+- write tests for the engines
+- seperate engines to avoid installing goja or otto packages if not needed
 - 
 - 
 
 
+== DONE ==
+	- when creating New rbac, at first pass a nil as an empty implementation of the interface
+		and if it is empty don't use rules (and don't accept them in SetRbac)
+	- add testing
+	- need to improve error handling
+	- you can add error state in struct
+		why do this??
 
-== Testing ==
+
+
+
+== Run & Testing ==
 > go test ./rbac
 > go test ./rbac -coverprofile=c.out
 > go tool cover -html=c.out

@@ -1,19 +1,23 @@
-package rbac
+package faster_otto
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+
+	rbac "go-rbac/rbac"
 
 	"github.com/robertkrimen/otto"
 )
 
-// type RulesMap = map[string]string // rule name to rule code mapping
+type rulesMapType = map[string]string
 
-type FasterOttoEvalEngine struct {
+type fasterOttoEvalEngine struct {
 	vm           *otto.Otto
 	otherCode    string
 	ruleFunction string
-	rulesMap     map[string]string
-	permissions  []Permission
+	rulesMap     rulesMapType
+	permissions  []rbac.Permission
 }
 
 const defaultRuleFunctionFasterOtto = `
@@ -21,8 +25,7 @@ function rule%s(user, resource) {
 	return %s;
 }`
 
-// TODO change the name to New, after moving the otto package to its own package
-func NewFasterOtto(permissions []Permission) (*FasterOttoEvalEngine, error) {
+func New(permissions []rbac.Permission) (*fasterOttoEvalEngine, error) {
 	vm := otto.New()
 	script, rulesMap := generateScript(permissions, defaultRuleFunctionFasterOtto)
 
@@ -32,7 +35,7 @@ func NewFasterOtto(permissions []Permission) (*FasterOttoEvalEngine, error) {
 		return nil, errors.New("failed running Eval function code")
 	}
 
-	evalEngine := &FasterOttoEvalEngine{
+	evalEngine := &fasterOttoEvalEngine{
 		vm:          vm,
 		rulesMap:    rulesMap,
 		permissions: permissions,
@@ -40,7 +43,7 @@ func NewFasterOtto(permissions []Permission) (*FasterOttoEvalEngine, error) {
 	return evalEngine, nil
 }
 
-func (ee *FasterOttoEvalEngine) SetHelperCode(code string) error {
+func (ee *fasterOttoEvalEngine) SetHelperCode(code string) error {
 	ee.otherCode = code
 	_, err := ee.vm.Run(code)
 	if err != nil {
@@ -49,7 +52,7 @@ func (ee *FasterOttoEvalEngine) SetHelperCode(code string) error {
 	return err
 }
 
-func (ee *FasterOttoEvalEngine) SetRuleCode(code string) error {
+func (ee *fasterOttoEvalEngine) SetRuleCode(code string) error {
 	ee.ruleFunction = code
 	script, rulesMap := generateScript(ee.permissions, code)
 	ee.rulesMap = rulesMap
@@ -62,9 +65,9 @@ func (ee *FasterOttoEvalEngine) SetRuleCode(code string) error {
 	return err
 }
 
-func (ee *FasterOttoEvalEngine) RunRule(user Principal, resource Resource, rule string) (bool, error) {
+func (ee *fasterOttoEvalEngine) RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error) {
 	if rule == "" {
-		return true, nil
+		return false, errors.New("rule is empty")
 	}
 
 	// get function to call
@@ -75,7 +78,7 @@ func (ee *FasterOttoEvalEngine) RunRule(user Principal, resource Resource, rule 
 	}
 
 	// Call the function with arguments
-	value, err := ee.vm.Call(functionName, nil, user, resource)
+	value, err := ee.vm.Call(functionName, nil, principal, resource)
 	if err != nil {
 		return false, errors.New("failed calling function")
 	}
@@ -87,4 +90,25 @@ func (ee *FasterOttoEvalEngine) RunRule(user Principal, resource Resource, rule 
 	}
 
 	return result, nil
+}
+
+func generateScript(permissions []rbac.Permission, ruleFunction string) (string, map[string]string) {
+	rulesMap := rulesMapType{}
+
+	i := 0
+	for _, p := range permissions {
+		_, ok := rulesMap[p.Rule]
+		if !ok && p.Rule != "" {
+			rulesMap[p.Rule] = strconv.Itoa(i)
+			i++
+		}
+	}
+
+	script := ``
+	for key, value := range rulesMap {
+		script = script + `
+	  		` + fmt.Sprintf(ruleFunction, value, key)
+	}
+
+	return script, rulesMap
 }

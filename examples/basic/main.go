@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	simple_otto "go-rbac/engine/simple-otto"
 	"go-rbac/rbac"
 )
 
@@ -22,22 +23,23 @@ import (
 
 func main() {
 	// GOJA is the fastest
-	// goja, _ := rbac.NewGojaEvalEngine(permissions)
-	// // goja.SetOtherCode(otherCode)
-	// rbacAuth := rbac.New(goja)
+	// engine, _ := rbac.NewGojaEvalEngine(permissions)
+	// // engine.SetOtherCode(otherCode)
+	// engine, _ := faster_otto.New(permissions)
+	engine, _ := simple_otto.New()
+	rbacAuth, err := rbac.New(engine)
+	//
+	// rbacAuth, err := rbac.New()
+	if err != nil {
+		log.Fatalf("expected no error in rbac New, got (%v)", err.Error())
+	}
 
-	// fasterOtto, _ := rbac.NewFasterOtto(permissions)
-	// rbacAuth := rbac.New(fasterOtto)
+	// engine.SetOtherCode(otherCode)
+	// engine.SetHelperCode(``)
+	// engine.SetRuleCode(`function rule%s(user, resource) { return %s; }`)
+	// engine.SetRuleCode(` %s; `)
 
-	rbacAuth := rbac.New()
-
-	// evalEngine := rbacAuth.GetEvalEngine()
-	// evalEngine.SetOtherCode(otherCode)
-	// evalEngine.SetHelperCode(``)
-	// evalEngine.SetRuleCode(`function rule%s(user, resource) { return %s; }`)
-	// evalEngine.SetRuleCode(` %s; `)
-
-	err := rbacAuth.SetRBAC(rbac.RbacData{
+	err = rbacAuth.SetRBAC(rbac.RbacData{
 		Roles:             roles,
 		Permissions:       permissions,
 		RoleParents:       roleParents,
@@ -60,15 +62,6 @@ func main() {
 		"id": 5, "title": "tutorial", "owner": 5,
 		// "list": []int{1, 2, 3, 4, 5, 6},
 	}
-
-	// ee := rbacAuth.GetEvalEngine()
-	// rule := "user.id === resource.owner"
-	// // rule := "user.id === resource.owner && listHasValue(resource.list, 2)"
-	// result, err := ee.RunRule(user, resource, rule)
-	// if err != nil {
-	// 	log.Fatal("- Err: ", err.Error())
-	// }
-	// fmt.Println("- Result:", result)
 
 	start := time.Now()
 
