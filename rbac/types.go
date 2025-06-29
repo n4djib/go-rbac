@@ -35,8 +35,7 @@ type Permission struct {
 type permissionInternal struct {
 	id          int
 	_permission string
-	// TODO make it optional (in the input) when using default eval engine
-	rule string
+	rule        string
 }
 
 type RoleParent struct {

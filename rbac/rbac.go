@@ -80,7 +80,6 @@ func setPermissions(rbac *rbac, permissions []Permission) error {
 	prevPermissions := make([]string, len(permissions))
 	for i, permission := range permissions {
 		// we check permission is empty because the empty string "" is actually present in the prevPermissions slice
-		// FIXME slices is scaring me
 		if permission.Permission != "" && slices.Contains(prevPermissions, permission.Permission) {
 			return errors.New("duplicate permission: " + permission.Permission)
 		}

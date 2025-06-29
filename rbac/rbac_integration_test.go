@@ -393,9 +393,9 @@ func TestWithEvalEngines(t *testing.T) {
 	}
 
 	permissions := []rbac.Permission{
-		{Permission: "edit_post", Rule: ""},
+		{Permission: "edit_post"},
 		{Permission: "edit_own_post", Rule: "user.id === resource.owner"},
-		{Permission: "create_post", Rule: ""},
+		{Permission: "create_post"},
 		{Permission: "delete_user", Rule: ""},
 
 		{Permission: "delete_post", Rule: ""},
