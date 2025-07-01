@@ -1,5 +1,5 @@
 == TODOs ==
--  try to use RunRule (check rule) from the engine 
+- try to use RunRule (check rule) from the engine 
 	to allow the user to test if the engine can evaluate the rule
 - make it a library
 - optimizations
@@ -11,6 +11,7 @@
 		Lookup Operations:
 			Maps: O(1) average case for lookups by key - very fast
 			Slices: O(n) for searching unless sorted (then O(log n) with binary search)
+	what if we use pointers (copy by reference)
 - a better optimization
 	we don't evaluate the rule unless
 	the rule leads to the role
@@ -39,6 +40,9 @@
 			like if your manager is absent
 - write tests for the engines
 - seperate engines to avoid installing goja or otto packages if not needed
+- write a README.md file
+- hox to version the libraries
+- add doc.go file to the library package for godoc support
 - 
 - 
 
