@@ -95,6 +95,7 @@ func setPermissions(rbac *rbac, permissions []Permission) error {
 			_permission: permission.Permission,
 			rule:        permission.Rule,
 		}
+		prevPermissions = append(prevPermissions, permission.Permission)
 	}
 
 	return nil
@@ -102,7 +103,12 @@ func setPermissions(rbac *rbac, permissions []Permission) error {
 
 func setRoleParents(rbac *rbac, roleParents []RoleParent) error {
 	rbac.roleParents = make([]roleParentInternal, len(roleParents))
+	prevRoleParents := make([]string, len(roleParents))
 	for i, roleParent := range roleParents {
+		// we check roleParent is empty because the empty string "" is actually present in the prevRoleParents slice
+		if roleParent.Role != "" && roleParent.Parent != "" && slices.Contains(prevRoleParents, roleParent.Role+"-"+roleParent.Parent) {
+			return errors.New("duplicate roleParent: " + roleParent.Role + " - " + roleParent.Parent)
+		}
 		roleID, err := rbac.getRoleByName(roleParent.Role)
 		if err != nil {
 			return err
@@ -111,18 +117,23 @@ func setRoleParents(rbac *rbac, roleParents []RoleParent) error {
 		if err != nil {
 			return err
 		}
-		// FIXME we are not checking for duplicate role-parents
 		rbac.roleParents[i] = roleParentInternal{
 			roleID:   roleID,
 			parentID: parentID,
 		}
+		prevRoleParents = append(prevRoleParents, roleParent.Role+"-"+roleParent.Parent)
 	}
 	return nil
 }
 
 func setPermissionParents(rbac *rbac, permissionParents []PermissionParent) error {
 	rbac.permissionParents = make([]permissionParentInternal, len(permissionParents))
+	prevPermissionParents := make([]string, len(permissionParents))
 	for i, permissionParent := range permissionParents {
+		// we check permissionParent is empty because the empty string "" is actually present in the prevPermissionParents slice
+		if permissionParent.Permission != "" && permissionParent.Parent != "" && slices.Contains(prevPermissionParents, permissionParent.Permission+"-"+permissionParent.Parent) {
+			return errors.New("duplicate permissionParent: " + permissionParent.Permission + " - " + permissionParent.Parent)
+		}
 		permissionID, err := rbac.getPermissionByName(permissionParent.Permission)
 		if err != nil {
 			return err
@@ -131,18 +142,23 @@ func setPermissionParents(rbac *rbac, permissionParents []PermissionParent) erro
 		if err != nil {
 			return err
 		}
-		// FIXME we are not checking for duplicate permission-parents
 		rbac.permissionParents[i] = permissionParentInternal{
 			permissionID: permissionID,
 			parentID:     parentID,
 		}
+		prevPermissionParents = append(prevPermissionParents, permissionParent.Permission+"-"+permissionParent.Parent)
 	}
 	return nil
 }
 
 func setRolePermissions(rbac *rbac, rolePermissions []RolePermission) error {
 	rbac.rolePermissions = make([]rolePermissionInternal, len(rolePermissions))
+	prevRolePermissions := make([]string, len(rolePermissions))
 	for i, rolePermission := range rolePermissions {
+		// we check rolePermission is empty because the empty string "" is actually present in the prevRolePermissions slice
+		if rolePermission.Role != "" && rolePermission.Permission != "" && slices.Contains(prevRolePermissions, rolePermission.Role+"-"+rolePermission.Permission) {
+			return errors.New("duplicate rolePermission: " + rolePermission.Role + " - " + rolePermission.Permission)
+		}
 		roleID, err := rbac.getRoleByName(rolePermission.Role)
 		if err != nil {
 			return err
@@ -155,6 +171,7 @@ func setRolePermissions(rbac *rbac, rolePermissions []RolePermission) error {
 			roleID:       roleID,
 			permissionID: permissionID,
 		}
+		prevRolePermissions = append(prevRolePermissions, rolePermission.Role+"-"+rolePermission.Permission)
 	}
 	return nil
 }
