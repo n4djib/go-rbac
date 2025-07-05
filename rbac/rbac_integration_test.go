@@ -2,12 +2,14 @@ package rbac_test
 
 import (
 	"errors"
+	"fastergoga"
+	"fasterotto"
+	"simpleotto"
 	"testing"
 
-	faster_goga "go-rbac/engine/faster-goga"
-	faster_otto "go-rbac/engine/faster-otto"
-	simple_otto "go-rbac/engine/simple-otto"
-	"go-rbac/rbac"
+	"rbac"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSetRBAC(t *testing.T) {
@@ -107,7 +109,7 @@ func TestSetRBAC(t *testing.T) {
 		t.Run(td.name, func(t *testing.T) {
 			// engine, _ := faster_goga.New(permissions)
 			// engine, _ := faster_otto.New(permissions)
-			engine := simple_otto.New()
+			engine := simpleotto.New()
 
 			rbacAuth, err := rbac.New(engine)
 			if err != nil {
@@ -350,7 +352,7 @@ func TestIsAllowed(t *testing.T) {
 
 			// engine, _ := faster_goga.New(permissions)
 			// engine, _ := faster_otto.New(permissions)
-			engine := simple_otto.New()
+			engine := simpleotto.New()
 
 			rbacAuth, err := rbac.New(engine)
 			if err != nil {
@@ -426,9 +428,9 @@ func TestWithEvalEngines(t *testing.T) {
 
 	rulesList := extractRulesListFromPermissions(permissions)
 
-	engineOtto := simple_otto.New()
-	engineFasterOtto, _ := faster_otto.New(rulesList)
-	engineGoga, _ := faster_goga.New(rulesList)
+	engineOtto := simpleotto.New()
+	engineFasterOtto, _ := fasterotto.New(rulesList)
+	engineGoga, _ := fastergoga.New(rulesList)
 
 	data := []struct {
 		roles             []rbac.Role
@@ -571,6 +573,8 @@ func TestWithEvalEngines(t *testing.T) {
 
 	for _, td := range data {
 		t.Run(td.name, func(t *testing.T) {
+			assert := assert.New(t)
+
 			rbacAuth, err := rbac.New(td.engine)
 			if err != nil {
 				t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
@@ -607,9 +611,10 @@ func TestWithEvalEngines(t *testing.T) {
 				return
 			}
 			// TODO use testify in your test assertions
-			if allowed != td.allowed {
-				t.Fatalf("Expected (%v), got (%v)", td.allowed, allowed)
-			}
+			// if allowed != td.allowed {
+			// 	t.Fatalf("Expected (%v), got (%v)", td.allowed, allowed)
+			// }
+			assert.Equal(td.allowed, allowed, "expected allowed: %v, got: %v", td.allowed, allowed)
 		})
 	}
 }

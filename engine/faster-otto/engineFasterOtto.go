@@ -1,4 +1,4 @@
-package faster_otto
+package fasterotto
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 
 type rulesMapType map[string]string
 
-type fasterOttoEvalEngine struct {
+type FasterOttoEvalEngine struct {
 	vm           *otto.Otto
 	otherCode    string
 	ruleFunction string
@@ -18,14 +18,17 @@ type fasterOttoEvalEngine struct {
 	rulesList    []string
 }
 
-const defaultRuleFunctionFasterOtto = `
-function rule%s(user, resource) {
+const defaultEvalFunction = `
+function evalFunction%s(user, resource) {
 	return %s;
 }`
 
-func New(rulesList []string) (*fasterOttoEvalEngine, error) {
+func New(rulesList []string) (*FasterOttoEvalEngine, error) {
+	if len(rulesList) == 0 {
+		return nil, errors.New("rules list empty")
+	}
 	vm := otto.New()
-	script, rulesMap := generateScript(rulesList, defaultRuleFunctionFasterOtto)
+	script, rulesMap := generateScript(rulesList, defaultEvalFunction)
 
 	// Run the function code
 	_, err := vm.Run(script)
@@ -33,7 +36,7 @@ func New(rulesList []string) (*fasterOttoEvalEngine, error) {
 		return nil, errors.New("failed running Eval function code")
 	}
 
-	evalEngine := &fasterOttoEvalEngine{
+	evalEngine := &FasterOttoEvalEngine{
 		vm:        vm,
 		rulesMap:  rulesMap,
 		rulesList: rulesList,
@@ -41,16 +44,16 @@ func New(rulesList []string) (*fasterOttoEvalEngine, error) {
 	return evalEngine, nil
 }
 
-func (ee *fasterOttoEvalEngine) SetHelperCode(code string) error {
+func (ee *FasterOttoEvalEngine) SetHelperCode(code string) error {
 	ee.otherCode = code
 	_, err := ee.vm.Run(code)
 	if err != nil {
-		return errors.New("failed running script code")
+		return errors.New("failed running helper code")
 	}
 	return err
 }
 
-func (ee *fasterOttoEvalEngine) SetRuleCode(code string) error {
+func (ee *FasterOttoEvalEngine) SetEvalFuncCode(code string) error {
 	ee.ruleFunction = code
 	script, rulesMap := generateScript(ee.rulesList, code)
 	ee.rulesMap = rulesMap
@@ -63,14 +66,14 @@ func (ee *fasterOttoEvalEngine) SetRuleCode(code string) error {
 	return err
 }
 
-func (ee *fasterOttoEvalEngine) RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error) {
+func (ee *FasterOttoEvalEngine) RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error) {
 	if rule == "" {
 		return false, errors.New("rule is empty")
 	}
 
 	// get function to call
 	val, ok := ee.rulesMap[rule]
-	functionName := "rule" + val
+	functionName := "evalFunction" + val
 	if !ok {
 		return false, errors.New("rule is not in rulesMap")
 	}

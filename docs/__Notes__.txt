@@ -43,6 +43,10 @@
 - write a README.md file
 - hox to version the libraries
 - add doc.go file to the library package for godoc support
+- create a CLI tool for the library (bubble tea + ssh)
+	to create roles and Permissions and RolePermissions
+- 
+- 
 - 
 - 
 
@@ -65,3 +69,11 @@
 > go test .\rbac\rbac_test.go
 > go test .\rbac\rbac_integration_test.go -run TestWithEvalEngines
 > go run ./examples/basic .
+
+> cd rbac
+> go test -v .
+
+> cd engine
+> go test -v .
+
+

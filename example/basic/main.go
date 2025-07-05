@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 	"log"
+	"rbac"
+	"simpleotto"
 	"time"
-
-	simple_otto "go-rbac/engine/simple-otto"
-	"go-rbac/rbac"
 )
 
 // const otherCode = `
@@ -27,7 +26,7 @@ func main() {
 	// engine, _ := rbac.NewGojaEvalEngine(rulesList)
 	// // engine.SetOtherCode(otherCode)
 	// engine, _ := faster_otto.New(rulesList)
-	engine := simple_otto.New()
+	engine := simpleotto.New()
 	rbacAuth, err := rbac.New(engine)
 	//
 	// rbacAuth, err := rbac.New()
@@ -89,10 +88,10 @@ func main() {
 	fmt.Println("- Duration:", time.Since(start))
 }
 
-func extractRulesListFromPermissions(permissions []rbac.Permission) []string {
-	rulesList := make([]string, len(permissions))
-	for _, p := range permissions {
-		rulesList = append(rulesList, p.Rule)
-	}
-	return rulesList
-}
+// func extractRulesListFromPermissions(permissions []rbac.Permission) []string {
+// 	rulesList := make([]string, len(permissions))
+// 	for _, p := range permissions {
+// 		rulesList = append(rulesList, p.Rule)
+// 	}
+// 	return rulesList
+// }

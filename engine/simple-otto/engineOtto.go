@@ -1,4 +1,4 @@
-package simple_otto
+package simpleotto
 
 import (
 	"errors"
@@ -7,43 +7,43 @@ import (
 	"github.com/robertkrimen/otto"
 )
 
-type ottoEvalEngine struct {
+type OttoEvalEngine struct {
 	vm           *otto.Otto
 	otherCode    string
-	ruleFunction string
+	evalFunction string
 }
 
-const defaultRuleFunction = `function rule(user, resource) {
+const defaultEvalFunction = `function evalFunction(user, resource) {
 	return %s;
 }`
 
-func New() *ottoEvalEngine {
-	return &ottoEvalEngine{
+func New() *OttoEvalEngine {
+	return &OttoEvalEngine{
 		vm:           otto.New(),
-		ruleFunction: defaultRuleFunction,
+		evalFunction: defaultEvalFunction,
 	}
 }
 
-func (ee *ottoEvalEngine) SetHelperCode(code string) error {
+func (ee *OttoEvalEngine) SetHelperCode(code string) error {
 	ee.otherCode = code
 	_, err := ee.vm.Run(code)
 	if err != nil {
-		return errors.New("failed running script code")
+		return errors.New("failed running helper code")
 	}
-	return err
+	return nil
 }
 
-func (ee *ottoEvalEngine) SetRuleCode(code string) {
-	ee.ruleFunction = code
+func (ee *OttoEvalEngine) SetEvalFuncCode(code string) {
+	ee.evalFunction = code
 }
 
-func (ee *ottoEvalEngine) RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error) {
+func (ee *OttoEvalEngine) RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error) {
 	if rule == "" {
 		return false, errors.New("rule is empty")
 	}
 
 	// format JS script
-	script := fmt.Sprintf(ee.ruleFunction, rule)
+	script := fmt.Sprintf(ee.evalFunction, rule)
 
 	// Run the function code
 	_, err := ee.vm.Run(ee.otherCode + ` ` + script)
@@ -51,7 +51,7 @@ func (ee *ottoEvalEngine) RunRule(principal map[string]any, resource map[string]
 		return false, errors.New("failed running Eval function code")
 	}
 	// Call the function with arguments
-	value, err := ee.vm.Call("rule", nil, principal, resource)
+	value, err := ee.vm.Call("evalFunction", nil, principal, resource)
 	if err != nil {
 		return false, errors.New("failed calling function")
 	}
