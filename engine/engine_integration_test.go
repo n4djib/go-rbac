@@ -367,6 +367,17 @@ func TestWithEvalEngines(t *testing.T) {
 			expectedResult: false,
 			error:          nil,
 		},
+		{
+			engineName:     "simple-otto",
+			name:           "simple-otto: empty rule result in false",
+			evalCode:       "",
+			rule:           "",
+			rulesList:      nil,
+			principal:      defaultPrincipal,
+			resource:       defaultResource,
+			expectedResult: false,
+			error:          errors.New("rule is empty"),
+		},
 		/**/ // faster-otto
 		{
 			engineName:     "faster-otto",
@@ -390,6 +401,17 @@ func TestWithEvalEngines(t *testing.T) {
 			expectedResult: false,
 			error:          nil,
 		},
+		{
+			engineName:     "faster-otto",
+			name:           "faster-otto: empty rule result in false",
+			evalCode:       "",
+			rule:           "",
+			rulesList:      []string{"user.id === resource.owner"},
+			principal:      defaultPrincipal,
+			resource:       defaultResource,
+			expectedResult: false,
+			error:          errors.New("rule is empty"),
+		},
 		/**/ // faster-goga
 		{
 			engineName:     "faster-goga",
@@ -412,6 +434,17 @@ func TestWithEvalEngines(t *testing.T) {
 			resource:       defaultResource,
 			expectedResult: false,
 			error:          nil,
+		},
+		{
+			engineName:     "faster-goga",
+			name:           "faster-goga: empty rule result in false",
+			evalCode:       "",
+			rule:           "",
+			rulesList:      []string{"user.id === resource.owner"},
+			principal:      defaultPrincipal,
+			resource:       defaultResource,
+			expectedResult: false,
+			error:          errors.New("rule is empty"),
 		},
 	}
 

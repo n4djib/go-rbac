@@ -77,3 +77,10 @@
 > go test -v .
 
 
+go-rbac\rbac> go test -coverprofile=c.out .
+go-rbac\rbac> go tool cover -html=c.out
+
+go-rbac\engine> go test -v -coverpkg=./... -coverprofile=c.out .
+go-rbac\engine> go tool cover -html=c.out
+
+

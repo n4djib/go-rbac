@@ -149,8 +149,7 @@ func TestSetRBAC(t *testing.T) {
 
 			rbacAuth, err := rbac.New(engine)
 			if err != nil {
-				t.Errorf("expected no error in rbac.New, got (%v)", err.Error())
-				return
+				t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
 			}
 
 			err = rbacAuth.SetRBAC(rbac.RbacData{
