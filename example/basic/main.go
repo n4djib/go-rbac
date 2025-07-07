@@ -3,9 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"rbac"
-	"simpleotto"
 	"time"
+
+	"github.com/n4djib/go-rbac/rbac"
+
+	"github.com/n4djib/go-rbac/engine/simpleotto"
 )
 
 // const otherCode = `

@@ -36,6 +36,16 @@ func TestPincipalValidation(t *testing.T) {
 			name:      "valide principal",
 			error:     nil,
 		},
+		{
+			principal: Principal{"id": 1, "roles": 1},
+			name:      "roles is an integer",
+			error:     errors.New("roles must be a []string"),
+		},
+		{
+			principal: Principal{"id": 1, "roles": []int{1, 2}},
+			name:      "roles is an array of integers",
+			error:     errors.New("roles must be a []string"),
+		},
 	}
 
 	for _, td := range data {

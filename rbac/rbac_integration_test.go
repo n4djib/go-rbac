@@ -2,15 +2,45 @@ package rbac_test
 
 import (
 	"errors"
-	"fastergoga"
-	"fasterotto"
-	"simpleotto"
 	"testing"
 
-	"rbac"
+	"github.com/n4djib/go-rbac/rbac"
+
+	"github.com/n4djib/go-rbac/engine/fastergoga"
+	"github.com/n4djib/go-rbac/engine/fasterotto"
+	"github.com/n4djib/go-rbac/engine/simpleotto"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestCreateRbacEmptyEngine(t *testing.T) {
+	rbacAuthSimpleOtto, err := rbac.New()
+	if err != nil {
+		t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
+	}
+
+	if rbacAuthSimpleOtto == nil {
+		t.Fatal("expected rbacAuth to be not nil")
+	}
+}
+
+func TestCreateRbacTwoEngines(t *testing.T) {
+	engineSimpleOtto := simpleotto.New()
+	engineFasterOtto, err := fasterotto.New([]string{"user.id === resource.id"})
+	if err != nil {
+		t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
+	}
+
+	_, err = rbac.New(engineSimpleOtto, engineFasterOtto)
+	if err == nil {
+		t.Fatalf("expected error in rbac.New, got nil")
+	}
+
+	expected := errors.New("only one eval engine is allowed")
+	if err.Error() != expected.Error() {
+		t.Fatalf("expected error (%v) in rbac.New, got (%v)", expected.Error(), err.Error())
+	}
+}
 
 func TestSetRBAC(t *testing.T) {
 	data := []struct {

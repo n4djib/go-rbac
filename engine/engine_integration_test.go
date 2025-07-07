@@ -2,11 +2,11 @@ package engine_test
 
 import (
 	"errors"
-	"fastergoga"
-	"fasterotto"
-	"simpleotto"
 	"testing"
 
+	"github.com/n4djib/go-rbac/engine/fastergoga"
+	"github.com/n4djib/go-rbac/engine/fasterotto"
+	"github.com/n4djib/go-rbac/engine/simpleotto"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

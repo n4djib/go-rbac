@@ -1,4 +1,4 @@
-module fasterotto
+module github.com/n4djib/go-rbac/engine/fasterotto
 
 go 1.24.1
 

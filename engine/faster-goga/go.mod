@@ -1,4 +1,4 @@
-module fastergoga
+module github.com/n4djib/go-rbac/engine/fastergoga
 
 go 1.24.1
 

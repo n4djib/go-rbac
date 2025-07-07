@@ -1,12 +1,12 @@
-module engine
+module github.com/n4djib/go-rbac/engine
 
 go 1.24.1
 
 require (
-	fastergoga v0.0.0
-	fasterotto v0.0.0
+	github.com/n4djib/go-rbac/engine/fastergoga v0.0.0
+	github.com/n4djib/go-rbac/engine/fasterotto v0.0.0
+	github.com/n4djib/go-rbac/engine/simpleotto v0.0.0
 	github.com/stretchr/testify v1.10.0
-	simpleotto v0.0.0
 )
 
 require (
@@ -22,10 +22,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace fasterotto => ./faster-otto
+replace github.com/n4djib/go-rbac/engine/fastergoga => ./faster-goga
 
-replace fastergoga => ./faster-goga
+replace github.com/n4djib/go-rbac/engine/fasterotto => ./faster-otto
 
-replace simpleotto => ./simple-otto
-
-replace rbac => ../rbac
+replace github.com/n4djib/go-rbac/engine/simpleotto => ./simple-otto

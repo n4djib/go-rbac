@@ -38,7 +38,6 @@
 		but the rule says manager of (group)
 		maybe you are a manager if a condition applies
 			like if your manager is absent
-- write tests for the engines
 - seperate engines to avoid installing goja or otto packages if not needed
 - write a README.md file
 - hox to version the libraries
@@ -58,29 +57,23 @@
 	- need to improve error handling
 	- you can add error state in struct
 		why do this??
+	- write tests for the engines
 
 
 
 
 == Run & Testing ==
 > go test ./rbac
-> go test ./rbac -coverprofile=c.out
-> go tool cover -html=c.out
 > go test .\rbac\rbac_test.go
 > go test .\rbac\rbac_integration_test.go -run TestWithEvalEngines
 > go run ./examples/basic .
 
-> cd rbac
-> go test -v .
-
-> cd engine
-> go test -v .
-
-
-go-rbac\rbac> go test -coverprofile=c.out .
-go-rbac\rbac> go tool cover -html=c.out
 
 go-rbac\engine> go test -v -coverpkg=./... -coverprofile=c.out .
 go-rbac\engine> go tool cover -html=c.out
 
+go-rbac\rbac> go test -coverprofile=c.out .
+go-rbac\rbac> go tool cover -html=c.out
 
+go-rbac\example> go run .\basic .
+go-rbac\example> go run ./basic .

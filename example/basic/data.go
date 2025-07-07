@@ -1,7 +1,7 @@
 package main
 
 import (
-	"rbac"
+	"github.com/n4djib/go-rbac/rbac"
 )
 
 var roles = []rbac.Role{

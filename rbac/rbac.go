@@ -27,6 +27,8 @@ func (rbac *rbac) SetRBAC(data RbacData) error {
 		return errors.New("rolePermissions list is Empty")
 	}
 
+	// TODO set a flag to check if SetRBAC was called
+
 	err := setRoles(rbac, data.Roles)
 	if err != nil {
 		return err
@@ -200,6 +202,7 @@ func (rbac rbac) getRole(id int) roleInternal {
 			return current
 		}
 	}
+	// FIXME maybe i should return nil, not empty
 	return roleInternal{}
 }
 
@@ -209,10 +212,12 @@ func (rbac rbac) getPermission(id int) permissionInternal {
 			return current
 		}
 	}
+	// FIXME maybe i should return nil, not empty
 	return permissionInternal{}
 }
 
 func (rbac rbac) getRoleParents(id int) []roleInternal {
+	// FIXME maybe i should return nil, not empty
 	parents := []roleInternal{}
 	for _, current := range rbac.roleParents {
 		if current.roleID == id {
@@ -224,6 +229,7 @@ func (rbac rbac) getRoleParents(id int) []roleInternal {
 }
 
 func (rbac rbac) getPermissionParents(id int) []permissionInternal {
+	// FIXME maybe i should return nil, not empty
 	parents := []permissionInternal{}
 	for _, current := range rbac.permissionParents {
 		if current.permissionID == id {
@@ -249,6 +255,7 @@ func (rbac rbac) getPermissionParents(id int) []permissionInternal {
 }
 
 func (rbac rbac) getPermissionRoles(id int) []roleInternal {
+	// FIXME maybe i should return nil, not empty
 	roles := []roleInternal{}
 	for _, current := range rbac.rolePermissions {
 		if current.permissionID == id {
@@ -360,6 +367,9 @@ func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission st
 		return false, errors.New("unknown permission: " + permission)
 	}
 
+	// FIXME the check is allready done in SetRBAC()
+	// but maybe we leave it because what if the user does not run SetRBAC()?
+	// remove this if you set a flag
 	if len(rbac.roles) == 0 {
 		return false, errors.New("roles list is Empty")
 	}
@@ -371,6 +381,7 @@ func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission st
 	}
 
 	// check principal has roles
+	// FIXME principal allready validated
 	principalRoles, ok := principal["roles"].([]string)
 	if !ok {
 		return false, errors.New("roles of type []string not found in principal")

@@ -1,18 +1,10 @@
-module cmd
+module github.com/n4djib/go-rbac/example
 
 go 1.24.1
 
-replace fasterotto => ../engine/faster-otto
-
-replace fastergoga => ../engine/faster-goga
-
-replace simpleotto => ../engine/simple-otto
-
-replace rbac => ../rbac
-
 require (
-	rbac v0.0.0-00010101000000-000000000000
-	simpleotto v0.0.0
+	github.com/n4djib/go-rbac/engine/simpleotto v0.0.0
+	github.com/n4djib/go-rbac/rbac v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -20,3 +12,11 @@ require (
 	golang.org/x/text v0.4.0 // indirect
 	gopkg.in/sourcemap.v1 v1.0.5 // indirect
 )
+
+replace github.com/n4djib/go-rbac/engine/fastergoga => ../engine/faster-goga
+
+replace github.com/n4djib/go-rbac/engine/fasterotto => ../engine/faster-otto
+
+replace github.com/n4djib/go-rbac/engine/simpleotto => ../engine/simple-otto
+
+replace github.com/n4djib/go-rbac/rbac => ../rbac

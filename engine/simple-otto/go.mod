@@ -1,4 +1,4 @@
-module simpleotto
+module github.com/n4djib/go-rbac/engine/simpleotto
 
 go 1.24.1
 
