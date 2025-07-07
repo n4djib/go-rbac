@@ -3,10 +3,10 @@ module github.com/n4djib/go-rbac/engine
 go 1.24.1
 
 require (
-	github.com/n4djib/go-rbac/engine/fastergoga v0.0.0
-	github.com/n4djib/go-rbac/engine/fasterotto v0.0.0
-	github.com/n4djib/go-rbac/engine/simpleotto v0.0.0
-	github.com/stretchr/testify v1.10.0
+	github.com/n4djib/go-rbac/engine/fastergoga v0.0.0-00010101000000-000000000000
+	github.com/n4djib/go-rbac/engine/fasterotto v0.0.0-00010101000000-000000000000
+	github.com/n4djib/go-rbac/engine/simpleotto v0.0.0-00010101000000-000000000000
+	github.com/stretchr/testify v1.8.1
 )
 
 require (
@@ -22,8 +22,8 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/n4djib/go-rbac/engine/fastergoga => ./faster-goga
+replace github.com/n4djib/go-rbac/engine/fastergoga => ./fastergoga
 
-replace github.com/n4djib/go-rbac/engine/fasterotto => ./faster-otto
+replace github.com/n4djib/go-rbac/engine/fasterotto => ./fasterotto
 
-replace github.com/n4djib/go-rbac/engine/simpleotto => ./simple-otto
+replace github.com/n4djib/go-rbac/engine/simpleotto => ./simpleotto
