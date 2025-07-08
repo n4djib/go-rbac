@@ -77,3 +77,21 @@ go-rbac\rbac> go tool cover -html=c.out
 
 go-rbac\example> go run .\basic .
 go-rbac\example> go run ./basic .
+
+
+== GIT ==
+= tags:
+git tag rbac/v0.1.0
+git tag engine/fastergoga/v0.1.0
+git tag engine/fasterotto/v0.1.0
+git tag engine/simpleotto/v0.1.0
+git push --tags
+
+
+git tag rbac/v0.2.0
+git tag engine/fastergoga/v0.2.0
+git tag engine/fasterotto/v0.2.0
+git tag engine/simpleotto/v0.2.0
+git push --tags
+
+

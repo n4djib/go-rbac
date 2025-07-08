@@ -3,8 +3,8 @@ module github.com/n4djib/go-rbac/example
 go 1.24.1
 
 require (
-	github.com/n4djib/go-rbac/engine/simpleotto v0.1.0
-	github.com/n4djib/go-rbac/rbac v0.1.0
+	github.com/n4djib/go-rbac/engine/simpleotto v0.2.0
+	github.com/n4djib/go-rbac/rbac v0.2.0
 )
 
 require (

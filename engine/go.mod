@@ -3,9 +3,9 @@ module github.com/n4djib/go-rbac/engine
 go 1.24.1
 
 require (
-	github.com/n4djib/go-rbac/engine/fastergoga v0.1.0
-	github.com/n4djib/go-rbac/engine/fasterotto v0.1.0
-	github.com/n4djib/go-rbac/engine/simpleotto v0.1.0
+	github.com/n4djib/go-rbac/engine/fastergoga v0.2.0
+	github.com/n4djib/go-rbac/engine/fasterotto v0.2.0
+	github.com/n4djib/go-rbac/engine/simpleotto v0.2.0
 	github.com/stretchr/testify v1.8.1
 )
 
