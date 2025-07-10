@@ -1,30 +1,30 @@
 == TODOs ==
-- try to use RunRule (check rule) from the engine 
-	to allow the user to test if the engine can evaluate the rule
 - make it a library
+- seperate engines to avoid installing goja or otto packages if not needed
 - optimizations
 	what if we change the data into graph at init
 		would that be faster?
 	set the data as maps not slices
 		would that be faster?
-		the slice length is short
+		the slice length is short????
 		Lookup Operations:
 			Maps: O(1) average case for lookups by key - very fast
 			Slices: O(n) for searching unless sorted (then O(log n) with binary search)
 	what if we use pointers (copy by reference)
 - a better optimization
 	we don't evaluate the rule unless
-	the rule leads to the role
-	traverse the tree as if the rules are all true without ruunning them
+		the rule leads to the role
+	traverse the tree as if the rules are all true without running them
 	and check if the user has the required role
-	if he has the reqiored role
+	if he has the required role
 	we traverse the tree
 - can we use Goroutines to speed things up?
+	maybe in running the rules
 - change the JS (library) like you did with the GO version
 	changed how it checks the setting of Roles and Permissions and RolePermissions
-- isAllowed result should return a message indicating the reason for unauthorized
+- IsAllowed() result should return a message indicating the reason for unauthorized or authorized
 - are the rules able to run in both GO and JS
-	?????????
+	when i am using then in a frontend & backend app
 - how to test in both languages at the same time
 	maybe integration test where the JS tries the GO backend
 - add a flag to enable debug mode
@@ -32,18 +32,32 @@
 	to watch the decision making process
 - create a UI relations visualizer and editor
 	abstract enaugh
+- write a README.md file
 - provide a database schema in SQL (to aid clients in creation of the database)
+	maybe just in the readme.md file
 - rules for Roles
 	role: manager
 		but the rule says manager of (group)
 		maybe you are a manager if a condition applies
 			like if your manager is absent
-- seperate engines to avoid installing goja or otto packages if not needed
-- write a README.md file
-- hox to version the libraries
+- how to version the libraries
+	by using git tags
+		i son't know how the users can decide which version to use
+- add licence file
 - add doc.go file to the library package for godoc support
 - create a CLI tool for the library (bubble tea + ssh)
 	to create roles and Permissions and RolePermissions
+- Memoize the IsAllowed() and engine RunRule()
+	proble is that rules apply to changig data
+		not really, the principal and resource are part of the Memoize call
+- pre calculate IsAllowed results
+- why i didn't create simplegoga engine???
+- check if the fields in the rule are all present in the principal and resource
+	maybe this is too much overhead and we should leave it up to the developer
+- it seems like the tests in rbac_integration_test are installing all the engines
+	which is exactly what i was trying to avoid
+	ANSWER: it's not a problem, they are downloaded for the test only
+		and will not be included in the final binary
 - 
 - 
 - 
@@ -58,6 +72,8 @@
 	- you can add error state in struct
 		why do this??
 	- write tests for the engines
+	- try to use RunRule (check rule) from the engine 
+		to allow the user to test if the engine can evaluate the rule
 
 
 
@@ -94,4 +110,4 @@ git tag engine/fasterotto/v0.2.0
 git tag engine/simpleotto/v0.2.0
 git push --tags
 
-
+git push --tags --force

@@ -305,7 +305,7 @@ func (rbac rbac) hasPermission(principal Principal, resource Resource, firstPerm
 		var result bool = true
 		var err error = nil
 		if len(rule) > 1 {
-			// FIX how is it accepting Principal type rather thatn enforcing map[strnig]any
+			// FIXME how is it accepting Principal type rather thatn enforcing map[strnig]any
 			result, err = rbac.evalEngine.RunRule(principal, resource, rule)
 		}
 		if err != nil {
