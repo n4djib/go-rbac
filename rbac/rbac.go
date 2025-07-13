@@ -202,7 +202,6 @@ func (rbac rbac) getRole(id int) roleInternal {
 			return current
 		}
 	}
-	// FIXME maybe i should return nil, not empty
 	return roleInternal{}
 }
 
@@ -212,12 +211,10 @@ func (rbac rbac) getPermission(id int) permissionInternal {
 			return current
 		}
 	}
-	// FIXME maybe i should return nil, not empty
 	return permissionInternal{}
 }
 
 func (rbac rbac) getRoleParents(id int) []roleInternal {
-	// FIXME maybe i should return nil, not empty
 	parents := []roleInternal{}
 	for _, current := range rbac.roleParents {
 		if current.roleID == id {
@@ -229,25 +226,28 @@ func (rbac rbac) getRoleParents(id int) []roleInternal {
 }
 
 func (rbac rbac) getPermissionParents(id int) []permissionInternal {
-	// FIXME maybe i should return nil, not empty
 	parents := []permissionInternal{}
 	for _, current := range rbac.permissionParents {
 		if current.permissionID == id {
 			parent := rbac.getPermission(current.parentID)
-			rule := strings.TrimSpace(parent.rule)
-			// doing this check to append only empty rules
-			if len(rule) == 0 {
-				parents = append(parents, parent)
+			if parent.id != 0 {
+				rule := strings.TrimSpace(parent.rule)
+				// doing this check to append only empty rules
+				if len(rule) == 0 {
+					parents = append(parents, parent)
+				}
 			}
 		}
 	}
 	for _, current := range rbac.permissionParents {
 		if current.permissionID == id {
 			parent := rbac.getPermission(current.parentID)
-			rule := strings.TrimSpace(parent.rule)
-			// doing this check to append only non-empty rules
-			if len(rule) > 0 {
-				parents = append(parents, parent)
+			if parent.id != 0 {
+				rule := strings.TrimSpace(parent.rule)
+				// doing this check to append only non-empty rules
+				if len(rule) > 0 {
+					parents = append(parents, parent)
+				}
 			}
 		}
 	}
@@ -255,12 +255,13 @@ func (rbac rbac) getPermissionParents(id int) []permissionInternal {
 }
 
 func (rbac rbac) getPermissionRoles(id int) []roleInternal {
-	// FIXME maybe i should return nil, not empty
 	roles := []roleInternal{}
 	for _, current := range rbac.rolePermissions {
 		if current.permissionID == id {
 			role := rbac.getRole(current.roleID)
-			roles = append(roles, role)
+			if role.id != 0 {
+				roles = append(roles, role)
+			}
 		}
 	}
 	return roles
@@ -305,7 +306,7 @@ func (rbac rbac) hasPermission(principal Principal, resource Resource, firstPerm
 		var result bool = true
 		var err error = nil
 		if len(rule) > 1 {
-			// FIXME how is it accepting Principal type rather thatn enforcing map[strnig]any
+			// FIXME how is it accepting Principal type rather than enforcing map[strnig]any
 			result, err = rbac.evalEngine.RunRule(principal, resource, rule)
 		}
 		if err != nil {
@@ -381,7 +382,7 @@ func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission st
 	}
 
 	// check principal has roles
-	// FIXME principal allready validated
+	// FIXME principal already validated
 	principalRoles, ok := principal["roles"].([]string)
 	if !ok {
 		return false, errors.New("roles of type []string not found in principal")
