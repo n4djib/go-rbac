@@ -11,35 +11,23 @@ import (
 	"github.com/n4djib/go-rbac/engine/simpleotto"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateRbacEmptyEngine(t *testing.T) {
 	rbacAuthSimpleOtto, err := rbac.New()
-	if err != nil {
-		t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
-	}
-
-	if rbacAuthSimpleOtto == nil {
-		t.Fatal("expected rbacAuth to be not nil")
-	}
+	require.NoError(t, err)
+	assert.NotNil(t, rbacAuthSimpleOtto, "Expected rbacAuth to not be nil")
 }
 
 func TestCreateRbacTwoEngines(t *testing.T) {
 	engineSimpleOtto := simpleotto.New()
 	engineFasterOtto, err := fasterotto.New([]string{"user.id === resource.id"})
-	if err != nil {
-		t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
-	}
+	require.NoError(t, err)
 
+	expectedError := errors.New("only one eval engine is allowed")
 	_, err = rbac.New(engineSimpleOtto, engineFasterOtto)
-	if err == nil {
-		t.Fatalf("expected error in rbac.New, got nil")
-	}
-
-	expected := errors.New("only one eval engine is allowed")
-	if err.Error() != expected.Error() {
-		t.Fatalf("expected error (%v) in rbac.New, got (%v)", expected.Error(), err.Error())
-	}
+	assert.Equal(t, expectedError, err, "Expected (%v), got (%v)", expectedError, err)
 }
 
 func TestSetRBAC(t *testing.T) {
@@ -178,9 +166,7 @@ func TestSetRBAC(t *testing.T) {
 			engine := simpleotto.New()
 
 			rbacAuth, err := rbac.New(engine)
-			if err != nil {
-				t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
-			}
+			require.NoError(t, err)
 
 			err = rbacAuth.SetRBAC(rbac.RbacData{
 				Roles:             td.roles,
@@ -189,14 +175,7 @@ func TestSetRBAC(t *testing.T) {
 				PermissionParents: td.permissionParents,
 				RolePermissions:   td.rolePermissions,
 			})
-			if err != nil {
-				if err.Error() != td.error.Error() {
-					t.Errorf("Expected (%v), got (%v)", td.error.Error(), err.Error())
-				}
-			}
-			if err == nil && td.error != nil {
-				t.Errorf("Expected (%v), got (%v)", td.error, err)
-			}
+			assert.Equal(t, td.error, err, "Expected (%v), got (%v)", td.error, err)
 		})
 	}
 }
@@ -208,7 +187,6 @@ func TestIsAllowed(t *testing.T) {
 		{Role: "USER"},
 		{Role: "MANAGER"},
 	}
-
 	permissions := []rbac.Permission{
 		{Permission: "edit_post", Rule: ""},
 		{Permission: "edit_own_post", Rule: "user.id === resource.owner"},
@@ -222,19 +200,16 @@ func TestIsAllowed(t *testing.T) {
 		// {Permission: "edit_own_user", Rule: "user.id === resource.id"},
 		// // {Permission: "edit_own_user", Rule: "user.id === resource.id && listHasValue(resource.list, 2)"},
 	}
-
 	roleParents := []rbac.RoleParent{
 		{Role: "ADMIN", Parent: "SUPER-ADMIN"},
 		{Role: "USER", Parent: "ADMIN"},
 		{Role: "MANAGER", Parent: "ADMIN"},
 	}
-
 	permissionParents := []rbac.PermissionParent{
 		{Permission: "edit_post", Parent: "edit_own_post"},
 		{Permission: "delete_post", Parent: "delete_own_post"},
 		// {Permission: "edit_user", Parent: "delete_own_post"},
 	}
-
 	rolePermissions := []rbac.RolePermission{
 		{Role: "MANAGER", Permission: "edit_post"},
 		{Role: "USER", Permission: "edit_own_post"},
@@ -245,26 +220,25 @@ func TestIsAllowed(t *testing.T) {
 	}
 
 	data := []struct {
+		name              string
 		roles             []rbac.Role
 		permissions       []rbac.Permission
 		roleParents       []rbac.RoleParent
 		permissionParents []rbac.PermissionParent
 		rolePermissions   []rbac.RolePermission
-		name              string
-		expectedAllowed   bool
 		permission        string
 		principal         rbac.Principal
 		resource          rbac.Resource
+		expectedAllowed   bool
 		error             error
 	}{
 		{
+			name:              "edit_post is allowed",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "edit_post is allowed",
-			expectedAllowed:   true,
 			permission:        "edit_post",
 			principal: rbac.Principal{
 				"id": 5, "name": "nadjib", "age": 4,
@@ -275,18 +249,17 @@ func TestIsAllowed(t *testing.T) {
 			},
 			resource: rbac.Resource{
 				"id": 16, "title": "tutorial post", "owner": 5,
-				// "list": []int{1, 2, 3, 4, 5, 6},
 			},
-			error: nil,
+			expectedAllowed: true,
+			error:           nil,
 		},
 		{
+			name:              "edit_post is not allowed",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "edit_post is not allowed",
-			expectedAllowed:   false,
 			permission:        "edit_post",
 			principal: rbac.Principal{
 				"id": 5, "name": "nadjib", "age": 37,
@@ -297,18 +270,17 @@ func TestIsAllowed(t *testing.T) {
 			},
 			resource: rbac.Resource{
 				"id": 15, "title": "tutorial post", "owner": 3,
-				// "list": []int{1, 2, 3, 4, 5, 6},
 			},
-			error: nil,
+			expectedAllowed: false,
+			error:           nil,
 		},
 		{
+			name:              "edit_post is allowed for ADMIN",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "edit_post is allowed for ADMIN",
-			expectedAllowed:   true,
 			permission:        "edit_post",
 			principal: rbac.Principal{
 				"id": 5, "name": "nadjib", "age": 37,
@@ -319,16 +291,16 @@ func TestIsAllowed(t *testing.T) {
 			resource: rbac.Resource{
 				"id": 15, "title": "tutorial post", "owner": 3,
 			},
-			error: nil,
+			expectedAllowed: true,
+			error:           nil,
 		},
 		{
+			name:              "edit_post is allowed for MANAGER",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "edit_post is allowed for MANAGER",
-			expectedAllowed:   true,
 			permission:        "edit_post",
 			principal: rbac.Principal{
 				"id": 5, "name": "nadjib", "age": 37,
@@ -339,16 +311,16 @@ func TestIsAllowed(t *testing.T) {
 			resource: rbac.Resource{
 				"id": 15, "title": "tutorial post", "owner": 3,
 			},
-			error: nil,
+			expectedAllowed: true,
+			error:           nil,
 		},
 		{
+			name:              "principal validation no roles",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "principal validation no roles",
-			expectedAllowed:   false,       // doesn't matter
 			permission:        "edit_post", // doesn't matter
 			principal: rbac.Principal{
 				"id": 5, "name": "nadjib", "age": 37,
@@ -359,16 +331,16 @@ func TestIsAllowed(t *testing.T) {
 			resource: rbac.Resource{
 				"id": 15, "title": "tutorial post", "owner": 3,
 			},
-			error: errors.New("missing required field: roles"),
+			expectedAllowed: false, // doesn't matter
+			error:           errors.New("missing required field: roles"),
 		},
 		{
+			name:              "edit_p is not a known pemission",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "edit_p is not a known pemission",
-			expectedAllowed:   true, // doesn't matter
 			permission:        "edit_p",
 			principal: rbac.Principal{
 				"id": 5, "name": "nadjib", "age": 4,
@@ -380,49 +352,20 @@ func TestIsAllowed(t *testing.T) {
 			resource: rbac.Resource{
 				"id": 16, "title": "tutorial post", "owner": 5,
 			},
-			error: errors.New("unknown permission: edit_p"),
-		},
-		{
-			roles: roles,
-			permissions: []rbac.Permission{
-				{Permission: "edit_post", Rule: ""},
-				// {Permission: "delete_post", Rule: ""},
-			},
-			roleParents:       roleParents,
-			permissionParents: []rbac.PermissionParent{
-				// {Permission: "delete_post", Parent: "delete_own_post"},
-			},
-			rolePermissions: []rbac.RolePermission{
-				{Role: "MANAGER", Permission: "delete_post"},
-			},
-			name:            "delete_post-is not in permissions list",
-			expectedAllowed: false, // doesn't matter
-			permission:      "delete_post",
-			principal: rbac.Principal{
-				"id": 5, "name": "nadjib", "age": 4,
-				"roles": []string{
-					"MANAGER",
-				},
-			},
-			resource: rbac.Resource{
-				"id": 16, "title": "tutorial post", "owner": 5,
-			},
-			error: errors.New("permission delete_post not found"),
+			expectedAllowed: true, // doesn't matter
+			error:           errors.New("unknown permission: edit_p"),
 		},
 	}
 
 	for _, td := range data {
 		t.Run(td.name, func(t *testing.T) {
-			expectedAllowed := td.expectedAllowed
-
 			// engine, _ := faster_goga.New(permissions)
 			// engine, _ := faster_otto.New(permissions)
 			engine := simpleotto.New()
 
 			rbacAuth, err := rbac.New(engine)
-			if err != nil {
-				t.Fatalf("expected no error in engine.New(), got (%v)", err.Error())
-			}
+			require.NoError(t, err)
+
 			err = rbacAuth.SetRBAC(rbac.RbacData{
 				Roles:             td.roles,
 				Permissions:       td.permissions,
@@ -430,24 +373,17 @@ func TestIsAllowed(t *testing.T) {
 				PermissionParents: td.permissionParents,
 				RolePermissions:   td.rolePermissions,
 			})
-			if err != nil {
-				if err.Error() != td.error.Error() {
-					t.Fatalf("in SetRBAC, got (%v)", err.Error())
-				}
-				// if there is an expected error in SetRBAC we return
-				// without warning
+			require.NoError(t, err)
+
+			allowed, err := rbacAuth.IsAllowed(td.principal, td.resource, td.permission)
+			require.Equal(t, td.error, err, "Expected error (%v), got (%v)", td.error, err)
+
+			// if there is an error from previous we dont' test allowed
+			if err != nil && td.error != nil {
 				return
 			}
 
-			allowed, err := rbacAuth.IsAllowed(td.principal, td.resource, td.permission)
-			if err != nil {
-				if err.Error() != td.error.Error() {
-					t.Fatalf("Expected %v, got %v", td.expectedAllowed, err.Error())
-				}
-			}
-			if err == nil && allowed != expectedAllowed {
-				t.Fatalf("Expected (%v), got (%v)", td.expectedAllowed, allowed)
-			}
+			assert.Equal(t, td.expectedAllowed, allowed, "Expected (%v), got (%v)", td.expectedAllowed, allowed)
 		})
 	}
 }
@@ -459,7 +395,6 @@ func TestWithEvalEngines(t *testing.T) {
 		{Role: "USER"},
 		{Role: "MANAGER"},
 	}
-
 	permissions := []rbac.Permission{
 		{Permission: "edit_post"},
 		{Permission: "edit_own_post", Rule: "user.id === resource.owner"},
@@ -469,19 +404,16 @@ func TestWithEvalEngines(t *testing.T) {
 		{Permission: "delete_post", Rule: ""},
 		{Permission: "delete_own_post", Rule: "user.id === resource.owner"},
 	}
-
 	roleParents := []rbac.RoleParent{
 		{Role: "ADMIN", Parent: "SUPER-ADMIN"},
 		{Role: "USER", Parent: "ADMIN"},
 		{Role: "MANAGER", Parent: "ADMIN"},
 	}
-
 	permissionParents := []rbac.PermissionParent{
 		{Permission: "edit_post", Parent: "edit_own_post"},
 		{Permission: "delete_post", Parent: "delete_own_post"},
 		// {Permission: "edit_user", Parent: "delete_own_post"},
 	}
-
 	rolePermissions := []rbac.RolePermission{
 		{Role: "MANAGER", Permission: "edit_post"},
 		{Role: "USER", Permission: "edit_own_post"},
@@ -490,7 +422,6 @@ func TestWithEvalEngines(t *testing.T) {
 		{Role: "USER", Permission: "delete_own_post"},
 		{Role: "MANAGER", Permission: "delete_post"},
 	}
-
 	rulesList := extractRulesListFromPermissions(permissions)
 
 	engineOtto := simpleotto.New()
@@ -512,12 +443,12 @@ func TestWithEvalEngines(t *testing.T) {
 		allowed           bool
 	}{
 		{
+			name:              "with default engine + Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "with default engine + Rules",
 			engine:            nil,
 			permission:        "edit_post",
 			principal: rbac.Principal{
@@ -535,6 +466,7 @@ func TestWithEvalEngines(t *testing.T) {
 			// allowed: false, // doesn't matter
 		},
 		{
+			name:  "with default engine + No Rules",
 			roles: roles,
 			permissions: []rbac.Permission{
 				{Permission: "edit_post", Rule: ""},
@@ -548,7 +480,6 @@ func TestWithEvalEngines(t *testing.T) {
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "with default engine + No Rules",
 			engine:            nil,
 			permission:        "edit_post",
 			principal: rbac.Principal{
@@ -560,18 +491,17 @@ func TestWithEvalEngines(t *testing.T) {
 			},
 			resource: rbac.Resource{
 				"id": 16, "title": "tutorial post", "owner": 5,
-				// "list": []int{1, 2, 3, 4, 5, 6},
 			},
 			error:   nil,
 			allowed: true,
 		},
 		{
+			name:              "with otto engine + Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "with otto engine + Rules",
 			engine:            engineOtto,
 			permission:        "edit_post",
 			principal: rbac.Principal{
@@ -583,18 +513,17 @@ func TestWithEvalEngines(t *testing.T) {
 			},
 			resource: rbac.Resource{
 				"id": 16, "title": "tutorial post", "owner": 5,
-				// "list": []int{1, 2, 3, 4, 5, 6},
 			},
 			error:   nil,
 			allowed: true,
 		},
 		{
+			name:              "with FasterOtto engine + Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "with FasterOtto engine + Rules",
 			engine:            engineFasterOtto,
 			permission:        "edit_post",
 			principal: rbac.Principal{
@@ -606,18 +535,17 @@ func TestWithEvalEngines(t *testing.T) {
 			},
 			resource: rbac.Resource{
 				"id": 16, "title": "tutorial post", "owner": 5,
-				// "list": []int{1, 2, 3, 4, 5, 6},
 			},
 			error:   nil,
 			allowed: true,
 		},
 		{
+			name:              "with Goga engine + Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
 			permissionParents: permissionParents,
 			rolePermissions:   rolePermissions,
-			name:              "with Goga engine + Rules",
 			engine:            engineGoga,
 			permission:        "edit_post",
 			principal: rbac.Principal{
@@ -629,7 +557,6 @@ func TestWithEvalEngines(t *testing.T) {
 			},
 			resource: rbac.Resource{
 				"id": 16, "title": "tutorial post", "owner": 5,
-				// "list": []int{1, 2, 3, 4, 5, 6},
 			},
 			error:   nil,
 			allowed: true,
@@ -641,9 +568,7 @@ func TestWithEvalEngines(t *testing.T) {
 			assert := assert.New(t)
 
 			rbacAuth, err := rbac.New(td.engine)
-			if err != nil {
-				t.Fatalf("expected no error in rbac.New, got (%v)", err.Error())
-			}
+			require.NoError(t, err)
 
 			err = rbacAuth.SetRBAC(rbac.RbacData{
 				Roles:             td.roles,
@@ -652,36 +577,43 @@ func TestWithEvalEngines(t *testing.T) {
 				PermissionParents: td.permissionParents,
 				RolePermissions:   td.rolePermissions,
 			})
-			if err != nil && td.error != nil {
-				if err.Error() != td.error.Error() {
-					t.Errorf("Expected (%v), got (%v)", td.error.Error(), err.Error())
-					return
-				}
-			}
-			if err == nil && td.error != nil {
-				t.Fatalf("Expected (%v), got (%v)", td.error, err)
-			}
-			if td.error == nil && err != nil {
-				t.Fatalf("Expected (%v), got (%v)", td.error, err)
-			}
+			require.Equal(t, td.error, err, "Expected error (%v), got (%v)", td.error, err)
 
 			// if there is an error from previous we dont' test allowed
-			if err != nil {
+			if err != nil && td.error != nil {
 				return
 			}
 
 			allowed, err := rbacAuth.IsAllowed(td.principal, td.resource, td.permission)
-			if err != nil {
-				t.Fatalf("Expected nil, got (%v)", err.Error())
-				return
-			}
-			// TODO use testify in your test assertions
-			// if allowed != td.allowed {
-			// 	t.Fatalf("Expected (%v), got (%v)", td.allowed, allowed)
-			// }
-			assert.Equal(td.allowed, allowed, "expected allowed: %v, got: %v", td.allowed, allowed)
+			require.NoError(t, err, "Expected no error in IsAllowed, got (%v)", err)
+			assert.Equal(td.allowed, allowed, "Expected allowed to be: %v, got: %v", td.allowed, allowed)
 		})
 	}
+}
+
+func TestWithEvalEngines_SetRbac_not_called(t *testing.T) {
+	principal := rbac.Principal{
+		"id": 5, "name": "nadjib", "age": 4,
+		"roles": []string{
+			// "ADMIN",
+			"USER",
+		},
+	}
+	resource := rbac.Resource{
+		"id": 16, "title": "tutorial post", "owner": 5,
+	}
+
+	// engineOtto := simpleotto.New()
+	// rbacAuth, err := rbac.New(td.engine)
+	rbacAuth, err := rbac.New()
+	require.NoError(t, err, "Expected no error in rbac.New(), got (%v)", err)
+
+	_, err = rbacAuth.IsAllowed(principal, resource, "create_post")
+
+	require.NotNil(t, err, "Expected an error, got nil")
+
+	expectedError := errors.New("RBAC was not set, call SetRBAC() first")
+	assert.Equal(t, expectedError, err, "Expected error (%v), got (%v)", expectedError, err)
 }
 
 func extractRulesListFromPermissions(permissions []rbac.Permission) []string {

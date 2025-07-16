@@ -13,7 +13,7 @@ github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:75.2,75.12 1 1
 github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:78.113,79.16 1 1
 github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:79.16,81.3 1 1
 github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:84.2,87.9 3 1
-github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:87.9,89.3 1 0
+github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:87.9,89.3 1 1
 github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:92.2,93.9 2 1
 github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:93.9,95.3 1 0
 github.com/n4djib/go-rbac/engine/fastergoga/engineGoja.go:98.2,101.16 4 1
@@ -39,7 +39,7 @@ github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:66.2,66.12 1 1
 github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:69.119,70.16 1 1
 github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:70.16,72.3 1 1
 github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:75.2,77.9 3 1
-github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:77.9,79.3 1 0
+github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:77.9,79.3 1 1
 github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:82.2,83.16 2 1
 github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:83.16,85.3 1 0
 github.com/n4djib/go-rbac/engine/fasterotto/engineFasterOtto.go:88.2,89.16 2 1

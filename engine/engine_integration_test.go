@@ -82,14 +82,14 @@ func TestEngineCreation(t *testing.T) {
 			var err error
 
 			switch td.engineName {
+			default:
+				t.Fatalf("unknown engine name: %s", td.engineName)
 			case "simple-otto":
 				_ = simpleotto.New()
 			case "faster-otto":
 				_, err = fasterotto.New(td.rulesList)
 			case "faster-goga":
 				_, err = fastergoga.New(td.rulesList)
-			default:
-				t.Fatalf("unknown engine name: %s", td.engineName)
 			}
 
 			assert.Equal(t, td.expected, err, "expected error: %v, got: %v", td.expected, err)
@@ -165,14 +165,6 @@ func TestEngineSettingCode(t *testing.T) {
 			evalCode:   incorrectEvalFunction,
 			expected:   errors.New("failed running script code"),
 		},
-		// {
-		// 	engineName: "faster-otto",
-		// 	name:       "faster-otto: fails because rule not in rulesMap",
-		// 	rulesList:  []string{"user.id === resource.owner1"},
-		// 	helperCode: "",
-		// 	evalCode:   correctEvalFunction,
-		// 	expected:   errors.New("failed running script code"),
-		// },
 		// faster-goga
 		{
 			engineName: "faster-goga",
@@ -206,7 +198,6 @@ func TestEngineSettingCode(t *testing.T) {
 			evalCode:   incorrectEvalFunction,
 			expected:   errors.New("failed running script code"),
 		},
-		// TODO test rule is not in rulesMap
 		// here we are not testing the rule, but the engine setting code only
 	}
 
@@ -216,6 +207,8 @@ func TestEngineSettingCode(t *testing.T) {
 			var err error
 
 			switch td.engineName {
+			default:
+				t.Fatalf("unknown engine name: %s", td.engineName)
 			case "simple-otto":
 				engine = simpleotto.New()
 				simpleOtto := engine.(*simpleotto.OttoEvalEngine)
@@ -226,9 +219,7 @@ func TestEngineSettingCode(t *testing.T) {
 				simpleOtto.SetEvalFuncCode(td.evalCode)
 			case "faster-otto":
 				engine, err = fasterotto.New(td.rulesList)
-				if err != nil {
-					t.Fatalf("failed creating engine: %v", err) // we are not asserting this because it shoutn't happen
-				}
+				require.NoError(t, err)
 				fasterOtto := engine.(*fasterotto.FasterOttoEvalEngine)
 				err = fasterOtto.SetHelperCode(td.helperCode)
 				if err != nil {
@@ -240,9 +231,7 @@ func TestEngineSettingCode(t *testing.T) {
 				}
 			case "faster-goga":
 				engine, err = fastergoga.New(td.rulesList)
-				if err != nil {
-					t.Fatalf("failed creating engine: %v", err)
-				}
+				require.NoError(t, err)
 				fasterGoga := engine.(*fastergoga.GojaEvalEngine)
 				err = fasterGoga.SetHelperCode(td.helperCode)
 				if err != nil {
@@ -252,8 +241,6 @@ func TestEngineSettingCode(t *testing.T) {
 				if err != nil {
 					break
 				}
-			default:
-				t.Fatalf("unknown engine name: %s", td.engineName)
 			}
 
 			assert.Equal(t, td.expected, err, "expected error: %v, got: %v", td.expected, err)
@@ -403,6 +390,17 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "faster-otto",
+			name:           "faster-otto: rule evaluate to false",
+			evalCode:       "",
+			rule:           "user.id !== resource.owner",
+			rulesList:      []string{"user.id !== resource.owner"},
+			principal:      defaultPrincipal,
+			resource:       defaultResource,
+			expectedResult: false,
+			error:          nil,
+		},
+		{
+			engineName:     "faster-otto",
 			name:           "faster-otto: empty rule result in false",
 			evalCode:       "",
 			rule:           "",
@@ -411,6 +409,17 @@ func TestWithEvalEngines(t *testing.T) {
 			resource:       defaultResource,
 			expectedResult: false,
 			error:          errors.New("rule is empty"),
+		},
+		{
+			engineName:     "faster-otto",
+			name:           "faster-otto: rule not in rulesMap cause error",
+			evalCode:       "",
+			rule:           "user.id !== resource.owner",
+			rulesList:      []string{"user.id === resource.owner"},
+			principal:      defaultPrincipal,
+			resource:       defaultResource,
+			expectedResult: false,
+			error:          errors.New("rule is not in rulesMap"),
 		},
 		/**/ // faster-goga
 		{
@@ -445,6 +454,17 @@ func TestWithEvalEngines(t *testing.T) {
 			resource:       defaultResource,
 			expectedResult: false,
 			error:          errors.New("rule is empty"),
+		},
+		{
+			engineName:     "faster-goga",
+			name:           "faster-otto: rule not in rulesMap cause error",
+			evalCode:       "",
+			rule:           "user.id !== resource.owner",
+			rulesList:      []string{"user.id === resource.owner"},
+			principal:      defaultPrincipal,
+			resource:       defaultResource,
+			expectedResult: false,
+			error:          errors.New("rule is not in rulesMap"),
 		},
 	}
 
@@ -506,23 +526,20 @@ func TestWithEvalEngines(t *testing.T) {
 					}
 				}
 			}
-			if err != nil {
-				t.Fatalf("---failed creating engine: %v", err)
-			}
+			require.NoError(t, err)
 
 			switch e := engine.(type) {
+			default:
+				t.Fatalf("unknown engine type")
 			case *simpleotto.OttoEvalEngine:
 				result, err = e.RunRule(td.principal, td.resource, td.rule)
 			case *fasterotto.FasterOttoEvalEngine:
 				result, err = e.RunRule(td.principal, td.resource, td.rule)
 			case *fastergoga.GojaEvalEngine:
 				result, err = e.RunRule(td.principal, td.resource, td.rule)
-			default:
-				t.Fatalf("unknown engine type")
 			}
 
 			require.Equal(t, td.error, err, "expected error: %v, got: %v", td.error, err)
-
 			assert.Equal(t, td.expectedResult, result, "expected result: %v, got: %v", td.expectedResult, result)
 		})
 	}

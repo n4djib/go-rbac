@@ -27,37 +27,38 @@ func (rbac *rbac) SetRBAC(data RbacData) error {
 		return errors.New("rolePermissions list is Empty")
 	}
 
-	// TODO set a flag to check if SetRBAC was called
-
-	err := setRoles(rbac, data.Roles)
+	err := rbac.setRoles(data.Roles)
 	if err != nil {
 		return err
 	}
 
-	err = setPermissions(rbac, data.Permissions)
+	err = rbac.setPermissions(data.Permissions)
 	if err != nil {
 		return err
 	}
 
-	err = setRoleParents(rbac, data.RoleParents)
+	err = rbac.setRoleParents(data.RoleParents)
 	if err != nil {
 		return err
 	}
 
-	err = setPermissionParents(rbac, data.PermissionParents)
+	err = rbac.setPermissionParents(data.PermissionParents)
 	if err != nil {
 		return err
 	}
 
-	err = setRolePermissions(rbac, data.RolePermissions)
+	err = rbac.setRolePermissions(data.RolePermissions)
 	if err != nil {
 		return err
 	}
+
+	// set the flag to true
+	rbac.rbacWasSet = true
 
 	return nil
 }
 
-func setRoles(rbac *rbac, roles []Role) error {
+func (rbac *rbac) setRoles(roles []Role) error {
 	rbac.roles = make([]roleInternal, len(roles))
 	prevRoles := make([]string, len(roles))
 	for i, role := range roles {
@@ -77,7 +78,7 @@ func setRoles(rbac *rbac, roles []Role) error {
 	return nil
 }
 
-func setPermissions(rbac *rbac, permissions []Permission) error {
+func (rbac *rbac) setPermissions(permissions []Permission) error {
 	rbac.permissions = make([]permissionInternal, len(permissions))
 	prevPermissions := make([]string, len(permissions))
 	for i, permission := range permissions {
@@ -103,7 +104,7 @@ func setPermissions(rbac *rbac, permissions []Permission) error {
 	return nil
 }
 
-func setRoleParents(rbac *rbac, roleParents []RoleParent) error {
+func (rbac *rbac) setRoleParents(roleParents []RoleParent) error {
 	rbac.roleParents = make([]roleParentInternal, len(roleParents))
 	prevRoleParents := make([]string, len(roleParents))
 	for i, roleParent := range roleParents {
@@ -128,7 +129,7 @@ func setRoleParents(rbac *rbac, roleParents []RoleParent) error {
 	return nil
 }
 
-func setPermissionParents(rbac *rbac, permissionParents []PermissionParent) error {
+func (rbac *rbac) setPermissionParents(permissionParents []PermissionParent) error {
 	rbac.permissionParents = make([]permissionParentInternal, len(permissionParents))
 	prevPermissionParents := make([]string, len(permissionParents))
 	for i, permissionParent := range permissionParents {
@@ -153,7 +154,7 @@ func setPermissionParents(rbac *rbac, permissionParents []PermissionParent) erro
 	return nil
 }
 
-func setRolePermissions(rbac *rbac, rolePermissions []RolePermission) error {
+func (rbac *rbac) setRolePermissions(rolePermissions []RolePermission) error {
 	rbac.rolePermissions = make([]rolePermissionInternal, len(rolePermissions))
 	prevRolePermissions := make([]string, len(rolePermissions))
 	for i, rolePermission := range rolePermissions {
@@ -202,6 +203,7 @@ func (rbac rbac) getRole(id int) roleInternal {
 			return current
 		}
 	}
+	// TODO return nil or reference not empty struct
 	return roleInternal{}
 }
 
@@ -211,6 +213,7 @@ func (rbac rbac) getPermission(id int) permissionInternal {
 			return current
 		}
 	}
+	// TODO return nil or reference not empty struct
 	return permissionInternal{}
 }
 
@@ -219,7 +222,9 @@ func (rbac rbac) getRoleParents(id int) []roleInternal {
 	for _, current := range rbac.roleParents {
 		if current.roleID == id {
 			parent := rbac.getRole(current.parentID)
-			parents = append(parents, parent)
+			if parent.id != 0 {
+				parents = append(parents, parent)
+			}
 		}
 	}
 	return parents
@@ -350,6 +355,12 @@ func (rbac rbac) hasPermission(principal Principal, resource Resource, firstPerm
 }
 
 func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission string) (bool, error) {
+	// check if SetRBAC was called
+	if !rbac.rbacWasSet {
+		return false, errors.New("RBAC was not set, call SetRBAC() first")
+	}
+
+	// check principal is valide
 	err := principal.validate()
 	if err != nil {
 		return false, err
@@ -368,25 +379,13 @@ func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission st
 		return false, errors.New("unknown permission: " + permission)
 	}
 
-	// FIXME the check is allready done in SetRBAC()
-	// but maybe we leave it because what if the user does not run SetRBAC()?
-	// remove this if you set a flag
-	if len(rbac.roles) == 0 {
-		return false, errors.New("roles list is Empty")
-	}
-	if len(rbac.permissions) == 0 {
-		return false, errors.New("permissions list is Empty")
-	}
-	if len(rbac.rolePermissions) == 0 {
-		return false, errors.New("rolePermissions list is Empty")
-	}
-
 	// check principal has roles
-	// FIXME principal already validated
-	principalRoles, ok := principal["roles"].([]string)
-	if !ok {
-		return false, errors.New("roles of type []string not found in principal")
-	}
+	// NOTE principal already validated
+	// principalRoles, ok := principal["roles"].([]string)
+	// if !ok {
+	// 	return false, errors.New("roles of type []string not found in principal")
+	// }
+	principalRoles := principal["roles"].([]string)
 	if len(principalRoles) == 0 {
 		return false, nil
 	}

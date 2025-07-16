@@ -8,11 +8,12 @@ type RBAC interface {
 }
 
 type EvalEngine interface {
-	// BUG how is it accepting map[string]any
 	RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error)
 }
 
 type rbac struct {
+	rbacWasSet bool // true if SetRBAC was called, false otherwise
+	// TODO make them into Maps rather than Slices
 	roles             []roleInternal
 	permissions       []permissionInternal
 	roleParents       []roleParentInternal

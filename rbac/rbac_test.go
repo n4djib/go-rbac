@@ -3,6 +3,8 @@ package rbac
 import (
 	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestPincipalValidation(t *testing.T) {
@@ -51,16 +53,7 @@ func TestPincipalValidation(t *testing.T) {
 	for _, td := range data {
 		t.Run(td.name, func(t *testing.T) {
 			err := td.principal.validate()
-			if err != nil {
-				if err.Error() != td.error.Error() {
-					t.Fatalf("Expected (%v), got (%v)", td.error, err.Error())
-				}
-			}
-			if err == nil {
-				if err != td.error {
-					t.Fatalf("Expected (%v), got (%v)", td.error, err)
-				}
-			}
+			assert.Equal(t, td.error, err, "Expected error (%v), got (%v)", td.error, err)
 		})
 	}
 }
