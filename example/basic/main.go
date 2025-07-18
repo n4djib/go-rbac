@@ -38,7 +38,7 @@ func main() {
 
 	// engine.SetOtherCode(otherCode)
 	// engine.SetHelperCode(``)
-	// engine.SetRuleCode(`function rule%s(user, resource) { return %s; }`)
+	// engine.SetRuleCode(`function rule%s(principal, resource) { return %s; }`)
 	// engine.SetRuleCode(` %s; `)
 
 	err = rbacAuth.SetRBAC(rbac.RbacData{

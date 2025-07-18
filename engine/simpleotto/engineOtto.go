@@ -13,7 +13,7 @@ type OttoEvalEngine struct {
 	evalFunction string
 }
 
-const defaultEvalFunction = `function evalFunction(user, resource) {
+const defaultEvalFunction = `function evalFunction(principal, resource) {
 	return %s;
 }`
 

@@ -22,7 +22,7 @@ func TestCreateRbacEmptyEngine(t *testing.T) {
 
 func TestCreateRbacTwoEngines(t *testing.T) {
 	engineSimpleOtto := simpleotto.New()
-	engineFasterOtto, err := fasterotto.New([]string{"user.id === resource.id"})
+	engineFasterOtto, err := fasterotto.New([]string{"principal.id === resource.id"})
 	require.NoError(t, err)
 
 	expectedError := errors.New("only one eval engine is allowed")
@@ -69,7 +69,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}},
-			permissions:       []rbac.Permission{{Permission: "edit_own_user", Rule: "user.id === resource.id"}},
+			permissions:       []rbac.Permission{{Permission: "edit_own_user", Rule: "principal.id === resource.id"}},
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{},
@@ -78,7 +78,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}, {Role: "USER"}, {Role: ""}},
-			permissions:       []rbac.Permission{{Permission: "edit_own_user", Rule: "user.id === resource.id"}},
+			permissions:       []rbac.Permission{{Permission: "edit_own_user", Rule: "principal.id === resource.id"}},
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_user"}},
@@ -96,7 +96,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}, {Role: "USER"}},
-			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "user.id === resource.owner"}},
+			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "principal.id === resource.owner"}},
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_own_USER"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_post"}},
@@ -105,7 +105,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}, {Role: "USER"}, {Role: "MANAGER"}},
-			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "user.id === resource.owner"}},
+			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "principal.id === resource.owner"}},
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_post"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "MANAGER", Permission: "delete_post"}},
@@ -114,7 +114,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}, {Role: "ADMIN"}},
-			permissions:       []rbac.Permission{{Permission: "edit_own_user", Rule: "user.id === resource.id"}},
+			permissions:       []rbac.Permission{{Permission: "edit_own_user", Rule: "principal.id === resource.id"}},
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_user"}},
@@ -123,7 +123,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}, {Role: "USER"}},
-			permissions:       []rbac.Permission{{Permission: "edit_own_user", Rule: "user.id === resource.id"}, {Permission: "edit_own_user", Rule: "user.id === resource.id"}},
+			permissions:       []rbac.Permission{{Permission: "edit_own_user", Rule: "principal.id === resource.id"}, {Permission: "edit_own_user", Rule: "principal.id === resource.id"}},
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_user"}},
@@ -132,7 +132,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}, {Role: "USER"}, {Role: "MANAGER"}},
-			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "user.id === resource.owner"}},
+			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "principal.id === resource.owner"}},
 			roleParents:       []rbac.RoleParent{{Role: "MANAGER", Parent: "USER"}, {Role: "MANAGER", Parent: "USER"}},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_post"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "MANAGER", Permission: "edit_post"}},
@@ -141,7 +141,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}, {Role: "USER"}, {Role: "MANAGER"}},
-			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "user.id === resource.owner"}},
+			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "principal.id === resource.owner"}},
 			roleParents:       []rbac.RoleParent{{Role: "MANAGER", Parent: "USER"}},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_post"}, {Permission: "edit_own_post", Parent: "edit_post"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "MANAGER", Permission: "edit_post"}},
@@ -150,7 +150,7 @@ func TestSetRBAC(t *testing.T) {
 		},
 		{
 			roles:             []rbac.Role{{Role: "ADMIN"}, {Role: "USER"}, {Role: "MANAGER"}},
-			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "user.id === resource.owner"}},
+			permissions:       []rbac.Permission{{Permission: "edit_post", Rule: ""}, {Permission: "edit_own_post", Rule: "principal.id === resource.owner"}},
 			roleParents:       []rbac.RoleParent{{Role: "MANAGER", Parent: "USER"}},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_post"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "MANAGER", Permission: "edit_post"}, {Role: "MANAGER", Permission: "edit_post"}},
@@ -189,16 +189,16 @@ func TestIsAllowed(t *testing.T) {
 	}
 	permissions := []rbac.Permission{
 		{Permission: "edit_post", Rule: ""},
-		{Permission: "edit_own_post", Rule: "user.id === resource.owner"},
+		{Permission: "edit_own_post", Rule: "principal.id === resource.owner"},
 		{Permission: "create_post", Rule: ""},
 		{Permission: "delete_user", Rule: ""},
 
 		{Permission: "delete_post", Rule: ""},
-		{Permission: "delete_own_post", Rule: "user.id === resource.owner"},
+		{Permission: "delete_own_post", Rule: "principal.id === resource.owner"},
 
 		// {Permission: "edit_user", Rule: ""},
-		// {Permission: "edit_own_user", Rule: "user.id === resource.id"},
-		// // {Permission: "edit_own_user", Rule: "user.id === resource.id && listHasValue(resource.list, 2)"},
+		// {Permission: "edit_own_user", Rule: "principal.id === resource.id"},
+		// // {Permission: "edit_own_user", Rule: "principal.id === resource.id && listHasValue(resource.list, 2)"},
 	}
 	roleParents := []rbac.RoleParent{
 		{Role: "ADMIN", Parent: "SUPER-ADMIN"},
@@ -397,12 +397,12 @@ func TestWithEvalEngines(t *testing.T) {
 	}
 	permissions := []rbac.Permission{
 		{Permission: "edit_post"},
-		{Permission: "edit_own_post", Rule: "user.id === resource.owner"},
+		{Permission: "edit_own_post", Rule: "principal.id === resource.owner"},
 		{Permission: "create_post"},
 		{Permission: "delete_user", Rule: ""},
 
 		{Permission: "delete_post", Rule: ""},
-		{Permission: "delete_own_post", Rule: "user.id === resource.owner"},
+		{Permission: "delete_own_post", Rule: "principal.id === resource.owner"},
 	}
 	roleParents := []rbac.RoleParent{
 		{Role: "ADMIN", Parent: "SUPER-ADMIN"},

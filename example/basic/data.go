@@ -13,16 +13,16 @@ var roles = []rbac.Role{
 
 var permissions = []rbac.Permission{
 	{Permission: "edit_post"},
-	{Permission: "edit_own_post", Rule: "user.id === resource.owner"},
+	{Permission: "edit_own_post", Rule: "principal.id === resource.owner"},
 	{Permission: "create_post"},
 	{Permission: "delete_user"},
 
 	{Permission: "delete_post"},
-	{Permission: "delete_own_post", Rule: "user.id === resource.owner"},
+	{Permission: "delete_own_post", Rule: "principal.id === resource.owner"},
 
 	// {Permission: "edit_user", Rule: ""},
-	// {Permission: "edit_own_user", Rule: "user.id === resource.id"},
-	// // {Permission: "edit_own_user", Rule: "user.id === resource.id && listHasValue(resource.list, 2)"},
+	// {Permission: "edit_own_user", Rule: "principal.id === resource.id"},
+	// // {Permission: "edit_own_user", Rule: "principal.id === resource.id && listHasValue(resource.list, 2)"},
 }
 
 var roleParents = []rbac.RoleParent{

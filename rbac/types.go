@@ -82,6 +82,7 @@ type (
 
 func (p Principal) validate() error {
 	// check required fields exist
+	// TODO why am i requiring id ?
 	required := []string{"id", "roles"}
 	for _, field := range required {
 		if _, exists := p[field]; !exists {

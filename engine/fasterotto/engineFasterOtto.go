@@ -19,7 +19,7 @@ type FasterOttoEvalEngine struct {
 }
 
 const defaultEvalFunction = `
-function evalFunction%s(user, resource) {
+function evalFunction%s(principal, resource) {
 	return %s;
 }`
 

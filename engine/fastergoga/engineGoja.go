@@ -20,10 +20,8 @@ type GojaEvalEngine struct {
 	rulesList    []string
 }
 
-// FIXME should the param be principal in stead of user
-// change principal to user (clear to understand)
 const defaultEvalFunction = `
-function evalFunction%s(user, resource) {
+function evalFunction%s(principal, resource) {
 	return %s;
 }`
 
