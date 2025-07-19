@@ -112,17 +112,17 @@ func (rbac *rbac) setRoleParents(roleParents []RoleParent) error {
 		if roleParent.Role != "" && roleParent.Parent != "" && slices.Contains(prevRoleParents, roleParent.Role+"-"+roleParent.Parent) {
 			return errors.New("duplicate roleParent: " + roleParent.Role + " - " + roleParent.Parent)
 		}
-		roleID, err := rbac.getRoleByName(roleParent.Role)
-		if err != nil {
-			return err
+		role := rbac.getRoleByName(roleParent.Role)
+		if role == nil {
+			return errors.New("role " + roleParent.Role + " not found")
 		}
-		parentID, err := rbac.getRoleByName(roleParent.Parent)
-		if err != nil {
-			return err
+		parent := rbac.getRoleByName(roleParent.Parent)
+		if parent == nil {
+			return errors.New("role " + roleParent.Parent + " not found")
 		}
 		rbac.roleParents[i] = roleParentInternal{
-			roleID:   roleID,
-			parentID: parentID,
+			roleID:   role.id,
+			parentID: parent.id,
 		}
 		prevRoleParents = append(prevRoleParents, roleParent.Role+"-"+roleParent.Parent)
 	}
@@ -137,17 +137,17 @@ func (rbac *rbac) setPermissionParents(permissionParents []PermissionParent) err
 		if permissionParent.Permission != "" && permissionParent.Parent != "" && slices.Contains(prevPermissionParents, permissionParent.Permission+"-"+permissionParent.Parent) {
 			return errors.New("duplicate permissionParent: " + permissionParent.Permission + " - " + permissionParent.Parent)
 		}
-		permissionID, err := rbac.getPermissionByName(permissionParent.Permission)
-		if err != nil {
-			return err
+		permission := rbac.getPermissionByName(permissionParent.Permission)
+		if permission == nil {
+			return errors.New("permission " + permissionParent.Permission + " not found")
 		}
-		parentID, err := rbac.getPermissionByName(permissionParent.Parent)
-		if err != nil {
-			return err
+		parent := rbac.getPermissionByName(permissionParent.Parent)
+		if parent == nil {
+			return errors.New("permission " + permissionParent.Parent + " not found")
 		}
 		rbac.permissionParents[i] = permissionParentInternal{
-			permissionID: permissionID,
-			parentID:     parentID,
+			permissionID: permission.id,
+			parentID:     parent.id,
 		}
 		prevPermissionParents = append(prevPermissionParents, permissionParent.Permission+"-"+permissionParent.Parent)
 	}
@@ -162,59 +162,57 @@ func (rbac *rbac) setRolePermissions(rolePermissions []RolePermission) error {
 		if rolePermission.Role != "" && rolePermission.Permission != "" && slices.Contains(prevRolePermissions, rolePermission.Role+"-"+rolePermission.Permission) {
 			return errors.New("duplicate rolePermission: " + rolePermission.Role + " - " + rolePermission.Permission)
 		}
-		roleID, err := rbac.getRoleByName(rolePermission.Role)
-		if err != nil {
-			return err
+		role := rbac.getRoleByName(rolePermission.Role)
+		if role == nil {
+			return errors.New("role " + rolePermission.Role + " not found")
 		}
-		permissionID, err := rbac.getPermissionByName(rolePermission.Permission)
-		if err != nil {
-			return err
+		permission := rbac.getPermissionByName(rolePermission.Permission)
+		if permission == nil {
+			return errors.New("permission " + rolePermission.Permission + " not found")
 		}
 		rbac.rolePermissions[i] = rolePermissionInternal{
-			roleID:       roleID,
-			permissionID: permissionID,
+			roleID:       role.id,
+			permissionID: permission.id,
 		}
 		prevRolePermissions = append(prevRolePermissions, rolePermission.Role+"-"+rolePermission.Permission)
 	}
 	return nil
 }
 
-func (rbac rbac) getRoleByName(role string) (int, error) {
+func (rbac rbac) getRoleByName(role string) *roleInternal {
 	for _, current := range rbac.roles {
 		if current._role == role {
-			return current.id, nil
+			return &current
 		}
 	}
-	return 0, errors.New("role " + role + " not found")
+	return nil
 }
 
-func (rbac rbac) getPermissionByName(permission string) (int, error) {
+func (rbac rbac) getPermissionByName(permission string) *permissionInternal {
 	for _, current := range rbac.permissions {
 		if current._permission == permission {
-			return current.id, nil
+			return &current
 		}
 	}
-	return 0, errors.New("permission " + permission + " not found")
+	return nil
 }
 
-func (rbac rbac) getRole(id int) roleInternal {
+func (rbac rbac) getRole(id int) *roleInternal {
 	for _, current := range rbac.roles {
 		if current.id == id {
-			return current
+			return &current
 		}
 	}
-	// TODO return nil or reference not empty struct
-	return roleInternal{}
+	return nil
 }
 
-func (rbac rbac) getPermission(id int) permissionInternal {
+func (rbac rbac) getPermission(id int) *permissionInternal {
 	for _, current := range rbac.permissions {
 		if current.id == id {
-			return current
+			return &current
 		}
 	}
-	// TODO return nil or reference not empty struct
-	return permissionInternal{}
+	return nil
 }
 
 func (rbac rbac) getRoleParents(id int) []roleInternal {
@@ -222,8 +220,8 @@ func (rbac rbac) getRoleParents(id int) []roleInternal {
 	for _, current := range rbac.roleParents {
 		if current.roleID == id {
 			parent := rbac.getRole(current.parentID)
-			if parent.id != 0 {
-				parents = append(parents, parent)
+			if parent != nil {
+				parents = append(parents, *parent)
 			}
 		}
 	}
@@ -235,11 +233,11 @@ func (rbac rbac) getPermissionParents(id int) []permissionInternal {
 	for _, current := range rbac.permissionParents {
 		if current.permissionID == id {
 			parent := rbac.getPermission(current.parentID)
-			if parent.id != 0 {
+			if parent != nil {
 				rule := strings.TrimSpace(parent.rule)
 				// doing this check to append only empty rules
 				if len(rule) == 0 {
-					parents = append(parents, parent)
+					parents = append(parents, *parent)
 				}
 			}
 		}
@@ -247,11 +245,11 @@ func (rbac rbac) getPermissionParents(id int) []permissionInternal {
 	for _, current := range rbac.permissionParents {
 		if current.permissionID == id {
 			parent := rbac.getPermission(current.parentID)
-			if parent.id != 0 {
+			if parent != nil {
 				rule := strings.TrimSpace(parent.rule)
 				// doing this check to append only non-empty rules
 				if len(rule) > 0 {
-					parents = append(parents, parent)
+					parents = append(parents, *parent)
 				}
 			}
 		}
@@ -264,8 +262,8 @@ func (rbac rbac) getPermissionRoles(id int) []roleInternal {
 	for _, current := range rbac.rolePermissions {
 		if current.permissionID == id {
 			role := rbac.getRole(current.roleID)
-			if role.id != 0 {
-				roles = append(roles, role)
+			if role != nil {
+				roles = append(roles, *role)
 			}
 		}
 	}
