@@ -27,7 +27,6 @@ function evalFunction%s(principal, resource) {
 
 func New(rulesList []string) (*GojaEvalEngine, error) {
 	if len(rulesList) == 0 {
-		// TODO make the Errors into Consts
 		return nil, errors.New("rules list empty")
 	}
 	vm := goja.New()

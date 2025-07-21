@@ -61,19 +61,19 @@ func (rbac *rbac) SetRBAC(data RbacData) error {
 func (rbac *rbac) setRoles(roles []Role) error {
 	rbac.roles = make([]roleInternal, len(roles))
 	prevRoles := make([]string, len(roles))
-	for i, role := range roles {
+	for i, current := range roles {
 		// we check role is empty because the empty string "" is actually present in the prevRoles slice
-		if role.Role != "" && slices.Contains(prevRoles, role.Role) {
-			return errors.New("duplicate role: " + role.Role)
+		if current.Role != "" && slices.Contains(prevRoles, current.Role) {
+			return errors.New("duplicate role: " + current.Role)
 		}
-		if role.Role == "" {
+		if current.Role == "" {
 			return errors.New("empty roles are not allowed")
 		}
 		rbac.roles[i] = roleInternal{
-			id:    i + 1,
-			_role: role.Role,
+			id:   i + 1,
+			role: current.Role,
 		}
-		prevRoles = append(prevRoles, role.Role)
+		prevRoles = append(prevRoles, current.Role)
 	}
 	return nil
 }
@@ -81,24 +81,24 @@ func (rbac *rbac) setRoles(roles []Role) error {
 func (rbac *rbac) setPermissions(permissions []Permission) error {
 	rbac.permissions = make([]permissionInternal, len(permissions))
 	prevPermissions := make([]string, len(permissions))
-	for i, permission := range permissions {
+	for i, current := range permissions {
 		// we check permission is empty because the empty string "" is actually present in the prevPermissions slice
-		if permission.Permission != "" && slices.Contains(prevPermissions, permission.Permission) {
-			return errors.New("duplicate permission: " + permission.Permission)
+		if current.Permission != "" && slices.Contains(prevPermissions, current.Permission) {
+			return errors.New("duplicate permission: " + current.Permission)
 		}
-		if permission.Permission == "" {
+		if current.Permission == "" {
 			return errors.New("empty permissions are not allowed")
 		}
 		// check if engine is nil and permissions has rules
-		if strings.TrimSpace(permission.Rule) != "" && rbac.evalEngine == nil {
+		if strings.TrimSpace(current.Rule) != "" && rbac.evalEngine == nil {
 			return errors.New("rules are not allowed without an eval engine")
 		}
 		rbac.permissions[i] = permissionInternal{
-			id:          i + 1,
-			_permission: permission.Permission,
-			rule:        permission.Rule,
+			id:         i + 1,
+			permission: current.Permission,
+			rule:       current.Rule,
 		}
-		prevPermissions = append(prevPermissions, permission.Permission)
+		prevPermissions = append(prevPermissions, current.Permission)
 	}
 
 	return nil
@@ -179,18 +179,18 @@ func (rbac *rbac) setRolePermissions(rolePermissions []RolePermission) error {
 	return nil
 }
 
-func (rbac rbac) getRoleByName(role string) *roleInternal {
+func (rbac rbac) getRoleByName(roleName string) *roleInternal {
 	for _, current := range rbac.roles {
-		if current._role == role {
+		if current.role == roleName {
 			return &current
 		}
 	}
 	return nil
 }
 
-func (rbac rbac) getPermissionByName(permission string) *permissionInternal {
+func (rbac rbac) getPermissionByName(permissionName string) *permissionInternal {
 	for _, current := range rbac.permissions {
-		if current._permission == permission {
+		if current.permission == permissionName {
 			return &current
 		}
 	}
@@ -367,7 +367,7 @@ func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission st
 	// check the permission exist
 	var startingPermission permissionInternal
 	for _, current := range rbac.permissions {
-		if permission == current._permission {
+		if permission == current.permission {
 			startingPermission = current
 			break
 		}

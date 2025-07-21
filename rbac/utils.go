@@ -11,8 +11,8 @@ func roleExist(roles []roleInternal, role roleInternal) bool {
 
 func checkPrincipalHasRole(principalRoles []string, roles []roleInternal) bool {
 	for _, principalRole := range principalRoles {
-		for _, role := range roles {
-			if principalRole == role._role {
+		for _, current := range roles {
+			if principalRole == current.role {
 				return true
 			}
 		}

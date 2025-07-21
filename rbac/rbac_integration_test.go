@@ -46,7 +46,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{},
-			name:              "empty lists",
+			name:              "empty-lists",
 			error:             errors.New("roles list is Empty"),
 		},
 		{
@@ -55,7 +55,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{},
-			name:              "empty roles lists",
+			name:              "empty-roles-lists",
 			error:             errors.New("roles list is Empty"),
 		},
 		{
@@ -64,7 +64,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{},
-			name:              "empty permissions",
+			name:              "empty-permissions",
 			error:             errors.New("permissions list is Empty"),
 		},
 		{
@@ -73,7 +73,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{},
-			name:              "empty permissionsRoles",
+			name:              "empty-permissionsRoles",
 			error:             errors.New("rolePermissions list is Empty"),
 		},
 		{
@@ -82,7 +82,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_user"}},
-			name:              "empty roles Name",
+			name:              "empty-roles-Name",
 			error:             errors.New("empty roles are not allowed"),
 		},
 		{
@@ -91,7 +91,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_user"}},
-			name:              "empty permissions Name",
+			name:              "empty-permissions-Name",
 			error:             errors.New("empty permissions are not allowed"),
 		},
 		{
@@ -100,7 +100,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_own_USER"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_post"}},
-			name:              "parent permission not found",
+			name:              "parent-permission-not-found",
 			error:             errors.New("permission edit_own_USER not found"),
 		},
 		{
@@ -109,7 +109,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_post"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "MANAGER", Permission: "delete_post"}},
-			name:              "rolePermission delete_post not in permissions",
+			name:              "rolePermission-delete_post-not-in-permissions",
 			error:             errors.New("permission delete_post not found"),
 		},
 		{
@@ -118,7 +118,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_user"}},
-			name:              "duplicates in roles causes error",
+			name:              "duplicates-in-roles-causes-error",
 			error:             errors.New("duplicate role: ADMIN"),
 		},
 		{
@@ -127,7 +127,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{},
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{{Role: "ADMIN", Permission: "edit_own_user"}},
-			name:              "duplicates in permissions causes error",
+			name:              "duplicates-in-permissions-causes-error",
 			error:             errors.New("duplicate permission: edit_own_user"),
 		},
 		{
@@ -136,7 +136,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{{Role: "MANAGER", Parent: "USER"}, {Role: "MANAGER", Parent: "USER"}},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_post"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "MANAGER", Permission: "edit_post"}},
-			name:              "roleParents duplicate causes error",
+			name:              "roleParents-duplicate-causes-error",
 			error:             errors.New("duplicate roleParent: MANAGER - USER"),
 		},
 		{
@@ -145,7 +145,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{{Role: "MANAGER", Parent: "USER"}},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_post"}, {Permission: "edit_own_post", Parent: "edit_post"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "MANAGER", Permission: "edit_post"}},
-			name:              "permissionParents duplicate causes error",
+			name:              "permissionParents-duplicate-causes-error",
 			error:             errors.New("duplicate permissionParent: edit_own_post - edit_post"),
 		},
 		{
@@ -154,7 +154,7 @@ func TestSetRBAC(t *testing.T) {
 			roleParents:       []rbac.RoleParent{{Role: "MANAGER", Parent: "USER"}},
 			permissionParents: []rbac.PermissionParent{{Permission: "edit_own_post", Parent: "edit_post"}},
 			rolePermissions:   []rbac.RolePermission{{Role: "MANAGER", Permission: "edit_post"}, {Role: "MANAGER", Permission: "edit_post"}},
-			name:              "rolePermissions duplicate causes error",
+			name:              "rolePermissions-duplicate-causes-error",
 			error:             errors.New("duplicate rolePermission: MANAGER - edit_post"),
 		},
 	}
@@ -233,7 +233,7 @@ func TestIsAllowed(t *testing.T) {
 		error             error
 	}{
 		{
-			name:              "edit_post is allowed",
+			name:              "edit_post-is-allowed",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -254,7 +254,7 @@ func TestIsAllowed(t *testing.T) {
 			error:           nil,
 		},
 		{
-			name:              "edit_post is not allowed",
+			name:              "edit_post-is-not-allowed",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -275,7 +275,7 @@ func TestIsAllowed(t *testing.T) {
 			error:           nil,
 		},
 		{
-			name:              "edit_post is allowed for ADMIN",
+			name:              "edit_post-is-allowed-for-ADMIN",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -295,7 +295,7 @@ func TestIsAllowed(t *testing.T) {
 			error:           nil,
 		},
 		{
-			name:              "edit_post is allowed for MANAGER",
+			name:              "edit_post-is-allowed-for-MANAGER",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -315,7 +315,7 @@ func TestIsAllowed(t *testing.T) {
 			error:           nil,
 		},
 		{
-			name:              "principal validation no roles",
+			name:              "principal-validation-no-roles",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -335,7 +335,7 @@ func TestIsAllowed(t *testing.T) {
 			error:           errors.New("missing required field: roles"),
 		},
 		{
-			name:              "edit_p is not a known pemission",
+			name:              "edit_p-is-not-a-known-pemission",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -443,7 +443,7 @@ func TestWithEvalEngines(t *testing.T) {
 		allowed           bool
 	}{
 		{
-			name:              "with default engine + Rules",
+			name:              "default-engine-plus-Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -466,7 +466,7 @@ func TestWithEvalEngines(t *testing.T) {
 			// allowed: false, // doesn't matter
 		},
 		{
-			name:  "with default engine + No Rules",
+			name:  "default-engine-WithNo-Rules",
 			roles: roles,
 			permissions: []rbac.Permission{
 				{Permission: "edit_post", Rule: ""},
@@ -496,7 +496,7 @@ func TestWithEvalEngines(t *testing.T) {
 			allowed: true,
 		},
 		{
-			name:              "with otto engine + Rules",
+			name:              "otto-engine-plus-Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -518,7 +518,7 @@ func TestWithEvalEngines(t *testing.T) {
 			allowed: true,
 		},
 		{
-			name:              "with FasterOtto engine + Rules",
+			name:              "FasterOtto-engine-plus-Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
@@ -540,7 +540,7 @@ func TestWithEvalEngines(t *testing.T) {
 			allowed: true,
 		},
 		{
-			name:              "with Goga engine + Rules",
+			name:              "Goga-engine-plus-Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,

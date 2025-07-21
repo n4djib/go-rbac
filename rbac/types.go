@@ -26,8 +26,8 @@ type Role struct {
 	Role string `json:"role"`
 }
 type roleInternal struct {
-	id    int
-	_role string
+	id   int
+	role string
 }
 
 type Permission struct {
@@ -35,9 +35,9 @@ type Permission struct {
 	Rule       string `json:"rule"`
 }
 type permissionInternal struct {
-	id          int
-	_permission string
-	rule        string
+	id         int
+	permission string
+	rule       string
 }
 
 type RoleParent struct {
