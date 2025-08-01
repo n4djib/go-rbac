@@ -47,7 +47,10 @@ func TestSetRBAC(t *testing.T) {
 			permissionParents: []rbac.PermissionParent{},
 			rolePermissions:   []rbac.RolePermission{},
 			name:              "empty-lists",
-			error:             errors.New("roles list is Empty"),
+			// TODO change the errors to strigns
+			// TODO make the errors global consts
+			// var ErrNotFound = errors.New("item not found")
+			error: errors.New("roles list is Empty"),
 		},
 		{
 			roles:             []rbac.Role{},
@@ -428,6 +431,8 @@ func TestWithEvalEngines(t *testing.T) {
 	engineFasterOtto, _ := fasterotto.New(rulesList)
 	engineGoga, _ := fastergoga.New(rulesList)
 
+	default_engine_plus_Rules := "default-engine-plus-Rules"
+
 	data := []struct {
 		roles             []rbac.Role
 		permissions       []rbac.Permission
@@ -443,7 +448,8 @@ func TestWithEvalEngines(t *testing.T) {
 		allowed           bool
 	}{
 		{
-			name:              "default-engine-plus-Rules",
+			name: default_engine_plus_Rules,
+			// name:              "default-engine-plus-Rules",
 			roles:             roles,
 			permissions:       permissions,
 			roleParents:       roleParents,
