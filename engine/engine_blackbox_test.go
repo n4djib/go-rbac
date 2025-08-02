@@ -21,57 +21,57 @@ func TestEngineCreation(t *testing.T) {
 		// simple-otto
 		{
 			engineName: "simple-otto",
-			name:       "simple-otto: should create engine",
+			name:       "simple-otto:should-create-engine",
 			rulesList:  nil,
 			expected:   nil,
 		},
 		// faster-otto
 		{
 			engineName: "faster-otto",
-			name:       "faster-otto: should create engine",
+			name:       "faster-otto:should-create-engine",
 			rulesList:  []string{"principal.id === resource.owner"},
 			expected:   nil,
 		},
 		{
 			engineName: "faster-otto",
-			name:       "faster-otto: should create engine 2",
+			name:       "faster-otto:should-create-engine-2",
 			rulesList:  []string{"principal.id === resource.owner", "principal.id === resource.owner"},
 			expected:   nil,
 		},
 		{
 			engineName: "faster-otto",
-			name:       "faster-otto: error no rules",
+			name:       "faster-otto:error-no-rules",
 			rulesList:  []string{},
 			expected:   errors.New("rules list empty"),
 		},
 		{
 			engineName: "faster-otto",
-			name:       "faster-otto: error no rules",
+			name:       "faster-otto:error-no-rules",
 			rulesList:  nil,
 			expected:   errors.New("rules list empty"),
 		},
 		// faster-goga
 		{
 			engineName: "faster-goga",
-			name:       "faster-goga: should create engine",
+			name:       "faster-goga:should-create-engine",
 			rulesList:  []string{"principal.id === resource.owner"},
 			expected:   nil,
 		},
 		{
 			engineName: "faster-goga",
-			name:       "faster-goga: should create engine 2",
+			name:       "faster-goga:should-create-engine-2",
 			rulesList:  []string{"principal.id === resource.owner", "principal.id === resource.owner"},
 			expected:   nil,
 		},
 		{
 			engineName: "faster-goga",
-			name:       "faster-goga: error no rules",
+			name:       "faster-goga:error-no-rules",
 			rulesList:  []string{},
 			expected:   errors.New("rules list empty"),
 		},
 		{
 			engineName: "faster-goga",
-			name:       "faster-goga: error no rules",
+			name:       "faster-goga:error-no-rules",
 			rulesList:  nil,
 			expected:   errors.New("rules list empty"),
 		},
@@ -118,7 +118,7 @@ func TestEngineSettingCode(t *testing.T) {
 		// simple-otto
 		{
 			engineName: "simple-otto",
-			name:       "simple-otto: should work fine with empty code",
+			name:       "simple-otto:should-work-fine-with-empty-code",
 			// rulesList:  nil,
 			helperCode: "",
 			evalCode:   "",
@@ -126,7 +126,7 @@ func TestEngineSettingCode(t *testing.T) {
 		},
 		{
 			engineName: "simple-otto",
-			name:       "simple-otto: error with wrong helper code",
+			name:       "simple-otto:error-with-wrong-helper-code",
 			// rulesList:  nil,
 			helperCode: " sdf sd sdf ",
 			evalCode:   "",
@@ -135,7 +135,7 @@ func TestEngineSettingCode(t *testing.T) {
 		// faster-otto
 		{
 			engineName: "faster-otto",
-			name:       "faster-otto: should work fine with empty help code",
+			name:       "faster-otto:should-work-fine-with-empty-help-code",
 			rulesList:  []string{"principal.id === resource.owner"},
 			helperCode: "",
 			evalCode:   correctEvalFunction,
@@ -143,7 +143,7 @@ func TestEngineSettingCode(t *testing.T) {
 		},
 		{
 			engineName: "faster-otto",
-			name:       "faster-otto: should work fine",
+			name:       "faster-otto:should-work-fine",
 			rulesList:  []string{"principal.id === resource.owner"},
 			helperCode: "function helper() { return true; }",
 			evalCode:   correctEvalFunction,
@@ -151,7 +151,7 @@ func TestEngineSettingCode(t *testing.T) {
 		},
 		{
 			engineName: "faster-otto",
-			name:       "faster-otto: should fail on erronious help code",
+			name:       "faster-otto:should-fail-on-erronious-help-code",
 			rulesList:  []string{"principal.id === resource.owner"},
 			helperCode: "function hel per() { return true; }",
 			evalCode:   correctEvalFunction,
@@ -159,7 +159,7 @@ func TestEngineSettingCode(t *testing.T) {
 		},
 		{
 			engineName: "faster-otto",
-			name:       "faster-otto: fails because of wrong eval code",
+			name:       "faster-otto:fails-because-of-wrong-eval-code",
 			rulesList:  []string{"principal.id === resource.owner"},
 			helperCode: "function helper() { return true; }",
 			evalCode:   incorrectEvalFunction,
@@ -168,7 +168,7 @@ func TestEngineSettingCode(t *testing.T) {
 		// faster-goga
 		{
 			engineName: "faster-goga",
-			name:       "faster-goga: should work fine with empty help code",
+			name:       "faster-goga:should-work-fine-with-empty-help-code",
 			rulesList:  []string{"principal.id === resource.owner"},
 			helperCode: "",
 			evalCode:   correctEvalFunction,
@@ -176,7 +176,7 @@ func TestEngineSettingCode(t *testing.T) {
 		},
 		{
 			engineName: "faster-goga",
-			name:       "faster-goga: should work fine",
+			name:       "faster-goga:should-work-fine",
 			rulesList:  []string{"principal.id === resource.owner"},
 			helperCode: "function helper() { return true; }",
 			evalCode:   correctEvalFunction,
@@ -184,7 +184,7 @@ func TestEngineSettingCode(t *testing.T) {
 		},
 		{
 			engineName: "faster-goga",
-			name:       "faster-goga: should fail on erronious help code",
+			name:       "faster-goga:should-fail-on-erronious-help-code",
 			rulesList:  []string{"principal.id === resource.owner"},
 			helperCode: "function hel per() { return true; }",
 			evalCode:   correctEvalFunction,
@@ -192,7 +192,7 @@ func TestEngineSettingCode(t *testing.T) {
 		},
 		{
 			engineName: "faster-goga",
-			name:       "faster-goga: fails because of wrong eval code",
+			name:       "faster-goga:fails-because-of-wrong-eval-code",
 			rulesList:  []string{"principal.id === resource.owner"},
 			helperCode: "function helper() { return true; }",
 			evalCode:   incorrectEvalFunction,
@@ -280,7 +280,7 @@ func TestWithEvalEngines(t *testing.T) {
 		/**/ // simple-otto
 		{
 			engineName:     "simple-otto",
-			name:           "simple-otto: work normally",
+			name:           "simple-otto:work-normally",
 			evalCode:       "",
 			rule:           "principal.id === resource.owner",
 			rulesList:      nil,
@@ -291,7 +291,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "simple-otto",
-			name:           "simple-otto: wrong rule cause false",
+			name:           "simple-otto:wrong-rule-cause-false",
 			evalCode:       "",
 			rule:           "principal.id === resource.owner1",
 			rulesList:      nil,
@@ -302,7 +302,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "simple-otto",
-			name:           "simple-otto: error because eval func code is erronious",
+			name:           "simple-otto:error-because-eval-func-code-is-erronious",
 			evalCode:       "fsdfsd",
 			rule:           "principal.id === resource.owner",
 			rulesList:      nil,
@@ -313,7 +313,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName: "simple-otto",
-			name:       "simple-otto: principal don't own the resource",
+			name:       "simple-otto:principal-don't-own-the-resource",
 			evalCode:   "",
 			rule:       "principal.id === resource.owner",
 			rulesList:  nil,
@@ -334,7 +334,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName: "simple-otto",
-			name:       "simple-otto: Roles is not used in rule",
+			name:       "simple-otto:Roles-is-not-used-in-rule",
 			evalCode:   "",
 			rule:       "principal.id === resource.owner",
 			rulesList:  nil,
@@ -356,7 +356,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "simple-otto",
-			name:           "simple-otto: empty rule result in false",
+			name:           "simple-otto:empty-rule-result-in-false",
 			evalCode:       "",
 			rule:           "",
 			rulesList:      nil,
@@ -368,7 +368,7 @@ func TestWithEvalEngines(t *testing.T) {
 		/**/ // faster-otto
 		{
 			engineName:     "faster-otto",
-			name:           "faster-otto: work normally",
+			name:           "faster-otto:work-normally",
 			evalCode:       "",
 			rule:           "principal.id === resource.owner",
 			rulesList:      []string{"principal.id === resource.owner"},
@@ -379,7 +379,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "faster-otto",
-			name:           "faster-otto: wrong rule cause false",
+			name:           "faster-otto:wrong-rule-cause-false",
 			evalCode:       "",
 			rule:           "principal.id === resource.owner1",
 			rulesList:      []string{"principal.id === resource.owner1"},
@@ -390,7 +390,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "faster-otto",
-			name:           "faster-otto: rule evaluate to false",
+			name:           "faster-otto:rule-evaluate-to-false",
 			evalCode:       "",
 			rule:           "principal.id !== resource.owner",
 			rulesList:      []string{"principal.id !== resource.owner"},
@@ -401,7 +401,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "faster-otto",
-			name:           "faster-otto: empty rule result in false",
+			name:           "faster-otto:empty-rule-result-in-false",
 			evalCode:       "",
 			rule:           "",
 			rulesList:      []string{"principal.id === resource.owner"},
@@ -412,7 +412,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "faster-otto",
-			name:           "faster-otto: rule not in rulesMap cause error",
+			name:           "faster-otto:rule-not-in-rulesMap-cause-error",
 			evalCode:       "",
 			rule:           "principal.id !== resource.owner",
 			rulesList:      []string{"principal.id === resource.owner"},
@@ -424,7 +424,7 @@ func TestWithEvalEngines(t *testing.T) {
 		/**/ // faster-goga
 		{
 			engineName:     "faster-goga",
-			name:           "faster-goga: work normally",
+			name:           "faster-goga:work-normally",
 			evalCode:       "",
 			rule:           "principal.id === resource.owner",
 			rulesList:      []string{"principal.id === resource.owner"},
@@ -435,7 +435,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "faster-goga",
-			name:           "faster-goga: wrong rule cause false",
+			name:           "faster-goga:wrong-rule-cause-false",
 			evalCode:       "",
 			rule:           "principal.id === resource.owner1",
 			rulesList:      []string{"principal.id === resource.owner1"},
@@ -446,7 +446,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "faster-goga",
-			name:           "faster-goga: empty rule result in false",
+			name:           "faster-goga:empty-rule-result-in-false",
 			evalCode:       "",
 			rule:           "",
 			rulesList:      []string{"principal.id === resource.owner"},
@@ -457,7 +457,7 @@ func TestWithEvalEngines(t *testing.T) {
 		},
 		{
 			engineName:     "faster-goga",
-			name:           "faster-otto: rule not in rulesMap cause error",
+			name:           "faster-goga:rule-not-in-rulesMap-cause-error",
 			evalCode:       "",
 			rule:           "principal.id !== resource.owner",
 			rulesList:      []string{"principal.id === resource.owner"},
