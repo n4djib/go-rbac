@@ -16,6 +16,7 @@ func New(engines ...EvalEngine) (RBAC, error) {
 	return &rbac{evalEngine: nil}, nil
 }
 
+// TODO collect errors in a slice
 func (rbac *rbac) SetRBAC(data RbacData) error {
 	if len(data.Roles) == 0 {
 		return errors.New("roles list is Empty")
@@ -339,7 +340,7 @@ func (rbac rbac) hasPermission(principal Principal, resource Resource, firstPerm
 			if breaked {
 				return true, nil
 			}
-			// FIXME should stop(break) if error
+			// should stop(break) if error
 			_, hasError := dfs(parent)
 			if hasError != nil {
 				return false, hasError
@@ -352,6 +353,8 @@ func (rbac rbac) hasPermission(principal Principal, resource Resource, firstPerm
 	return allowed, foundRoles, err
 }
 
+// TODO Memoize the IsAllowed()
+// TODO pre calculate IsAllowed results
 func (rbac rbac) IsAllowed(principal Principal, resource Resource, permission string) (bool, error) {
 	// check if SetRBAC was called
 	if !rbac.rbacWasSet {

@@ -1,6 +1,6 @@
 == TODOs ==
-- make it a library
-- seperate engines to avoid installing goja or otto packages if not needed
+			- make it a library
+			- seperate engines to avoid installing goja or otto packages if not needed
 - optimizations
 	what if we change the data into graph at init
 		would that be faster?
@@ -25,16 +25,8 @@
 - IsAllowed() result should return a message indicating the reason for unauthorized or authorized
 - are the rules able to run in both GO and JS
 	when i am using then in a frontend & backend app
-- how to test in both languages at the same time
-	maybe integration test where the JS tries the GO backend
 - add a flag to enable debug mode
-	to debug the engine and the rbac library
-	to watch the decision making process
-- create a UI relations visualizer and editor
-	abstract enaugh
-- write a README.md file
-- provide a database schema in SQL (to aid clients in creation of the database)
-	maybe just in the readme.md file
+	to debug the engine and the rbac library and watch the decision making process
 - rules for Roles
 	role: manager
 		but the rule says manager of (group)
@@ -42,23 +34,66 @@
 			like if your manager is absent
 - how to version the libraries
 	by using git tags
-		i son't know how the users can decide which version to use
-- add licence file
-- add doc.go file to the library package for godoc support
-- create a CLI tool for the library (bubble tea + ssh)
-	to create roles and Permissions and RolePermissions
+		i don't know how the users can decide which version to use
+
 - Memoize the IsAllowed() and engine RunRule()
 	proble is that rules apply to changig data
 		not really, the principal and resource are part of the Memoize call
 - pre calculate IsAllowed results
-- why i didn't create simplegoga engine???
 - check if the fields in the rule are all present in the principal and resource
 	maybe this is too much overhead and we should leave it up to the developer
-- it seems like the tests in rbac_integration_test are installing all the engines
-	which is exactly what i was trying to avoid
-	ANSWER: it's not a problem, they are downloaded for the test only
-		and will not be included in the final binary
+			- it seems like the tests in rbac_integration_test are installing all the engines
+				which is exactly what i was trying to avoid
+				ANSWER: it's not a problem, they are downloaded for the test only
+					and will not be included in the final binary
+- in SetRbac() or any func that can have many errors
+	return a slice of errors []error 
+	or
+		called error accumulator
+		6. Error Accumulator
+			type ErrorCollector struct { errors []error }
+			func (ec *ErrorCollector) Add(err error) {
+				if err != nil {
+					ec.errors = append(ec.errors, err)
+				}
+			}
+			func (ec *ErrorCollector) Error() error {
+				if len(ec.errors) == 0 { return nil }
+				return errors.Join(ec.errors...)
+			}
+			// Usage
+			func process() error {
+				var errs ErrorCollector
+				errs.Add(step1())
+				errs.Add(step2())
+				errs.Add(step3())
+				return errs.Error()
+			}
+- how to test in both languages at the same time
+	maybe integration test where the JS tries the GO backend
+	SOLUTION: write the tests cases in JSON format
+		convert them to the GO format and use them in GO tests
+		use the same JSON test cases in JS tests
+- set the Principal and Resource Validation method in the New() Engine func
+- name the test files blackbox and whitebox not integration
 - 
+- create a UI relations visualizer and editor
+	abstract enaugh
+- create a CLI tool for the library (bubble tea + ssh)
+	to create roles and Permissions and RolePermissions
+- add license file
+- write a README.md file
+	use readme.so
+- add doc.go file to the library package for godoc support
+- provide a database schema in SQL (to aid users in database creation)
+	maybe just in the readme.md file
+- Use Predefined Errors
+	For the best approach, define your errors as package variables:
+	var (
+		ErrInvalidFormat = errors.New("invalid input format")
+		ErrNotFound      = errors.New("item not found")
+	)
+
 - 
 - 
 - 
@@ -79,11 +114,9 @@
 
 
 == Run & Testing ==
-> go test ./rbac
-> go test .\rbac\rbac_test.go
-> go test .\rbac\rbac_integration_test.go -run TestWithEvalEngines
-> go run ./examples/basic .
-
+go-rbac\example\basic> go run .
+go-rbac\example>go run .\basic\ .
+	must run from basic where there a mod file
 
 go-rbac\engine> go test -v -coverpkg=./... -coverprofile=c.out .
 go-rbac\engine> go tool cover -html=c.out
@@ -91,8 +124,6 @@ go-rbac\engine> go tool cover -html=c.out
 go-rbac\rbac> go test -coverprofile=c.out .
 go-rbac\rbac> go tool cover -html=c.out
 
-go-rbac\example> go run .\basic .
-go-rbac\example> go run ./basic .
 
 
 == GIT ==

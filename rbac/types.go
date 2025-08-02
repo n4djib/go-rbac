@@ -11,15 +11,23 @@ type EvalEngine interface {
 	RunRule(principal map[string]any, resource map[string]any, rule string) (bool, error)
 }
 
+// TODO rules for Roles
 type rbac struct {
-	rbacWasSet bool // true if SetRBAC was called, false otherwise
-	// TODO make them into Maps rather than Slices
+	rbacWasSet        bool // true if SetRBAC was called, false otherwise
 	roles             []roleInternal
 	permissions       []permissionInternal
 	roleParents       []roleParentInternal
 	permissionParents []permissionParentInternal
 	rolePermissions   []rolePermissionInternal
 	evalEngine        EvalEngine
+}
+
+type RbacData struct {
+	Roles             []Role             `json:"roles"`
+	Permissions       []Permission       `json:"permissions"`
+	RoleParents       []RoleParent       `json:"roleParents"`
+	PermissionParents []PermissionParent `json:"permissionParents"`
+	RolePermissions   []RolePermission   `json:"rolePermissions"`
 }
 
 type Role struct {
@@ -67,23 +75,17 @@ type rolePermissionInternal struct {
 	permissionID int
 }
 
-type RbacData struct {
-	Roles             []Role             `json:"roles"`
-	Permissions       []Permission       `json:"permissions"`
-	RoleParents       []RoleParent       `json:"roleParents"`
-	PermissionParents []PermissionParent `json:"permissionParents"`
-	RolePermissions   []RolePermission   `json:"rolePermissions"`
-}
-
 type (
 	Principal map[string]any
 	Resource  map[string]any
 )
 
+// TODO set the validation in the New() func
+// TODO check if the fields in the rule are all present in the principal and resource
 func (p Principal) validate() error {
 	// check required fields exist
-	// TODO why am i requiring id ?
-	required := []string{"id", "roles"}
+	// required := []string{"id", "roles"}
+	required := []string{"roles"}
 	for _, field := range required {
 		if _, exists := p[field]; !exists {
 			return errors.New("missing required field: " + field)
