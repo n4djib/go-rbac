@@ -28,20 +28,19 @@ func main() {
 	// engine, _ := rbac.NewGojaEvalEngine(rulesList)
 	// // engine.SetOtherCode(otherCode)
 	// engine, _ := faster_otto.New(rulesList)
+
 	engine := simpleotto.New()
-	rbacAuth, err := rbac.New(engine)
+	rbacAuth := rbac.New()
+	rbacAuth.SetEngine(engine)
 	//
-	// rbacAuth, err := rbac.New()
-	if err != nil {
-		log.Fatalf("expected no error in rbac New, got (%v)", err.Error())
-	}
+	// rbacAuth := rbac.New()
 
 	// engine.SetOtherCode(otherCode)
 	// engine.SetHelperCode(``)
 	// engine.SetRuleCode(`function rule%s(principal, resource) { return %s; }`)
 	// engine.SetRuleCode(` %s; `)
 
-	err = rbacAuth.SetRBAC(rbac.RbacData{
+	err := rbacAuth.SetRBAC(rbac.RbacData{
 		Roles:             roles,
 		Permissions:       permissions,
 		RoleParents:       roleParents,

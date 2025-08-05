@@ -14,22 +14,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestCreateRbacEmptyEngine(t *testing.T) {
-	rbacAuthSimpleOtto, err := rbac.New()
-	require.NoError(t, err)
-	assert.NotNil(t, rbacAuthSimpleOtto, "Expected rbacAuth to not be nil")
-}
-
-func TestCreateRbacTwoEngines(t *testing.T) {
-	engineSimpleOtto := simpleotto.New()
-	engineFasterOtto, err := fasterotto.New([]string{"principal.id === resource.id"})
-	require.NoError(t, err)
-
-	expectedError := errors.New("only one eval engine is allowed")
-	_, err = rbac.New(engineSimpleOtto, engineFasterOtto)
-	assert.Equal(t, expectedError, err, "Expected (%v), got (%v)", expectedError, err)
-}
-
 func TestSetRBAC(t *testing.T) {
 	data := []struct {
 		roles             []rbac.Role
@@ -168,10 +152,10 @@ func TestSetRBAC(t *testing.T) {
 			// engine, _ := faster_otto.New(permissions)
 			engine := simpleotto.New()
 
-			rbacAuth, err := rbac.New(engine)
-			require.NoError(t, err)
+			rbacAuth := rbac.New()
+			rbacAuth.SetEngine(engine)
 
-			err = rbacAuth.SetRBAC(rbac.RbacData{
+			err := rbacAuth.SetRBAC(rbac.RbacData{
 				Roles:             td.roles,
 				Permissions:       td.permissions,
 				RoleParents:       td.roleParents,
@@ -366,10 +350,10 @@ func TestIsAllowed(t *testing.T) {
 			// engine, _ := faster_otto.New(permissions)
 			engine := simpleotto.New()
 
-			rbacAuth, err := rbac.New(engine)
-			require.NoError(t, err)
+			rbacAuth := rbac.New()
+			rbacAuth.SetEngine(engine)
 
-			err = rbacAuth.SetRBAC(rbac.RbacData{
+			err := rbacAuth.SetRBAC(rbac.RbacData{
 				Roles:             td.roles,
 				Permissions:       td.permissions,
 				RoleParents:       td.roleParents,
@@ -573,10 +557,10 @@ func TestWithEvalEngines(t *testing.T) {
 		t.Run(td.name, func(t *testing.T) {
 			assert := assert.New(t)
 
-			rbacAuth, err := rbac.New(td.engine)
-			require.NoError(t, err)
+			rbacAuth := rbac.New()
+			rbacAuth.SetEngine(td.engine)
 
-			err = rbacAuth.SetRBAC(rbac.RbacData{
+			err := rbacAuth.SetRBAC(rbac.RbacData{
 				Roles:             td.roles,
 				Permissions:       td.permissions,
 				RoleParents:       td.roleParents,
@@ -609,13 +593,9 @@ func TestWithEvalEngines_SetRbac_not_called(t *testing.T) {
 		"id": 16, "title": "tutorial post", "owner": 5,
 	}
 
-	// engineOtto := simpleotto.New()
-	// rbacAuth, err := rbac.New(td.engine)
-	rbacAuth, err := rbac.New()
-	require.NoError(t, err, "Expected no error in rbac.New(), got (%v)", err)
+	rbacAuth := rbac.New()
 
-	_, err = rbacAuth.IsAllowed(principal, resource, "create_post")
-
+	_, err := rbacAuth.IsAllowed(principal, resource, "create_post")
 	require.NotNil(t, err, "Expected an error, got nil")
 
 	expectedError := errors.New("RBAC was not set, call SetRBAC() first")

@@ -6,14 +6,12 @@ import (
 	"strings"
 )
 
-func New(engines ...EvalEngine) (RBAC, error) {
-	if len(engines) > 1 {
-		return &rbac{}, errors.New("only one eval engine is allowed")
-	}
-	if len(engines) == 1 {
-		return &rbac{evalEngine: engines[0]}, nil
-	}
-	return &rbac{evalEngine: nil}, nil
+func New() RBAC {
+	return &rbac{evalEngine: nil}
+}
+
+func (rbac *rbac) SetEngine(engine EvalEngine) {
+	rbac.evalEngine = engine
 }
 
 // TODO collect errors in a slice

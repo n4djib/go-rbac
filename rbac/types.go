@@ -3,6 +3,7 @@ package rbac
 import "errors"
 
 type RBAC interface {
+	SetEngine(engine EvalEngine)
 	SetRBAC(data RbacData) error
 	IsAllowed(principal Principal, resource Resource, permission string) (bool, error)
 }
