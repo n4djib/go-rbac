@@ -307,7 +307,8 @@ func (rbac rbac) hasPermission(principal Principal, resource Resource, firstPerm
 		rule := strings.TrimSpace(child.rule)
 		var result bool = true
 		var err error = nil
-		if len(rule) > 1 {
+		// if engine = nil then result = true
+		if rbac.evalEngine != nil && len(rule) > 1 {
 			// FIXME how is it accepting Principal type rather than enforcing map[strnig]any
 			result, err = rbac.evalEngine.RunRule(principal, resource, rule)
 		}

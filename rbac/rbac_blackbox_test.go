@@ -14,6 +14,75 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestRbac_WithEmptyEngine_AfterSetRbacWithRules(t *testing.T) {
+	data := rbac.RbacData{
+		Roles: []rbac.Role{
+			{Role: "SUPER-ADMIN"},
+			{Role: "ADMIN"},
+			{Role: "USER"},
+			{Role: "MANAGER"},
+		},
+		Permissions: []rbac.Permission{
+			{Permission: "edit_post", Rule: ""},
+			{Permission: "edit_own_post", Rule: "principal.id === resource.owner"},
+			{Permission: "create_post", Rule: ""},
+			{Permission: "delete_user", Rule: ""},
+
+			{Permission: "delete_post", Rule: ""},
+			{Permission: "delete_own_post", Rule: "principal.id === resource.owner"},
+		},
+		RoleParents: []rbac.RoleParent{
+			{Role: "ADMIN", Parent: "SUPER-ADMIN"},
+			{Role: "USER", Parent: "ADMIN"},
+			{Role: "MANAGER", Parent: "ADMIN"},
+		},
+		PermissionParents: []rbac.PermissionParent{
+			{Permission: "edit_post", Parent: "edit_own_post"},
+			{Permission: "delete_post", Parent: "delete_own_post"},
+			// {Permission: "edit_user", Parent: "delete_own_post"},
+		},
+		RolePermissions: []rbac.RolePermission{
+			{Role: "MANAGER", Permission: "edit_post"},
+			{Role: "USER", Permission: "edit_own_post"},
+			{Role: "USER", Permission: "create_post"},
+			{Role: "ADMIN", Permission: "delete_user"},
+			{Role: "USER", Permission: "delete_own_post"},
+			{Role: "MANAGER", Permission: "delete_post"},
+		},
+	}
+
+	principal := rbac.Principal{
+		"id": 5, "name": "nadjib", "age": 4,
+		"roles": []string{
+			// "ADMIN",
+			"USER",
+		},
+	}
+	resource := rbac.Resource{
+		"id": 16, "title": "tutorial post", "owner": 15,
+	}
+
+	rbacAuth := rbac.New()
+	engine := simpleotto.New()
+	rbacAuth.SetEngine(engine)
+	err := rbacAuth.SetRBAC(data)
+	require.NoError(t, err)
+
+	// # First test IsAllowed() with engine Otoo
+	expectedResult := false
+	result, err := rbacAuth.IsAllowed(principal, resource, "edit_post")
+	require.NoError(t, err)
+	require.Equal(t, expectedResult, result, "Expected result (%v), got (%v)", expectedResult, result)
+
+	// # Second test IsAllowed() with engine Nil
+	rbacAuth.SetEngine(nil)
+	// but the Engine is nil, so it will evaluate the rule to true
+	expectedResult = true
+	result, err = rbacAuth.IsAllowed(principal, resource, "edit_post")
+	require.NoError(t, err)
+	require.Equal(t, expectedResult, result, "Expected result (%v), got (%v)", expectedResult, result)
+}
+
 func TestSetRBAC(t *testing.T) {
 	data := []struct {
 		roles             []rbac.Role
